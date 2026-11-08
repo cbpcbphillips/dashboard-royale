@@ -334,3 +334,31 @@ table.basics td.num { text-align: right; font-variant-numeric: tabular-nums; whi
 .summary-detail { margin: 0; font-size: 0.9rem; color: var(--ink2); text-wrap: pretty; }
 .summary-link { margin-top: auto; padding-top: 6px; font-weight: 600; color: var(--brand); text-decoration: none; }
 .summary-link:hover { text-decoration: underline; }
+
+/* ---------- Evidence: model checks ---------- */
+.checks-list { margin: 14px 0 0; padding-left: 1.1rem; display: grid; gap: 8px; font-size: 0.92rem; color: var(--ink2); }
+.checks-list b { color: var(--ink); }
+
+/* ---------- Sign-in ---------- */
+.login-wrap { display: grid; place-items: center; padding: clamp(16px, 6vh, 64px) 0; }
+.login-card { width: min(100%, 520px); }
+.login-title { font-size: clamp(1.9rem, 1.4vw + 1.3rem, 2.6rem); }
+.login-forms { display: grid; gap: 14px; margin-top: 10px; }
+.login-form { display: grid; gap: 12px; }
+.login-field { display: grid; gap: 4px; font-size: 0.875rem; color: var(--ink2); font-weight: 500; }
+.login-field input { font: inherit; font-size: 1rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--page); color: var(--ink); }
+.login-field input:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.btn-primary, .btn-secondary { font: 600 1rem var(--body-font); padding: 11px 16px; border-radius: 8px; cursor: pointer; width: 100%; }
+.btn-primary { background: var(--brand); color: var(--brand-ink); border: 1px solid var(--brand); }
+.btn-primary:disabled { opacity: .7; cursor: wait; }
+.btn-secondary { background: var(--card); color: var(--brand); border: 1px solid var(--brand); }
+.btn-secondary:hover { background: var(--accent-soft); }
+.login-error { color: #b42318; font-size: 0.9rem; margin: 0; }
+.login-or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.8rem; }
+.login-or::before, .login-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.login-note { font-size: 0.8rem; color: var(--muted); margin: 6px 0 0; text-align: center; }
+.login-sso { font-size: 0.8rem; color: var(--muted); margin: 18px 0 0; border-top: 1px solid var(--line); padding-top: 12px; }
+.user-menu { display: flex; align-items: center; gap: 8px; margin-left: 8px; font-size: 0.8rem; white-space: nowrap; }
+.user-chip { padding: 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--ink2); max-width: 16ch; overflow: hidden; text-overflow: ellipsis; }
+.user-chip.demo { background: #fdf3d8; color: #7a5a12; }
+.link-btn { background: none; border: none; padding: 0; color: var(--brand); font: inherit; cursor: pointer; text-decoration: underline; }

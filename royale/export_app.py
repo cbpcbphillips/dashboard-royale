@@ -203,6 +203,34 @@ def export_q5(source: str) -> None:
     print(f"wrote {out} ({out.stat().st_size / 1e3:.0f} kB) from {source}: {len(t['weeks'])} weeks")
 
 
+MODEL_QUERIES = {
+    "metrics": """SELECT * FROM {g}.model_metrics WHERE target = 'tpah'""",
+    "daily": """SELECT CAST(gaming_date AS STRING) AS d, SUM(actual * available_hours) / SUM(available_hours) AS actual,
+                       SUM(pred_model * available_hours) / SUM(available_hours) AS model,
+                       SUM(pred_zone_game * available_hours) / SUM(available_hours) AS zone_game,
+                       SUM(pred_persistence * available_hours) / SUM(available_hours) AS persistence
+                FROM {g}.model_predictions WHERE target = 'tpah' GROUP BY gaming_date ORDER BY gaming_date""",
+    "moves": """SELECT machine_id, CAST(move_date AS STRING) AS move_date, from_zone, to_zone, actual_before, actual_after,
+                       actual_change, predicted_change FROM {g}.model_move_check ORDER BY move_date""",
+}
+
+
+def export_model(source: str) -> None:
+    """Model validation for the Evidence tab: frozen forecast (fit Jan-Apr, predict May-Jun) vs baselines (C14, C16)."""
+    t = run_queries(source, MODEL_QUERIES)
+    t["daily"]["d"] = t["daily"]["d"].astype(str).str[:10]
+    for k in t:
+        for c in t[k].columns:
+            if t[k][c].dtype == object and c not in ("d", "machine_id", "move_date", "from_zone", "to_zone", "target", "method", "label", "mlflow_run_id"):
+                t[k][c] = pd.to_numeric(t[k][c], errors="coerce")
+    payload = {"meta": {"generated_at": dt.datetime.now().isoformat(timespec="seconds"),
+                        "source": f"{'Databricks Unity Catalog' if source == 'databricks' else 'local DuckDB mirror'}: royale.gold.model_metrics, model_predictions, model_move_check; MLflow experiment royale-tpah"},
+               "metrics": clean(t["metrics"]), "daily": clean(t["daily"]), "moves": clean(t["moves"])}
+    out = OUT.parent / "model.json"
+    out.write_text(json.dumps(payload, separators=(",", ":"), allow_nan=False, default=str))
+    print(f"wrote {out} ({out.stat().st_size / 1e3:.0f} kB) from {source}")
+
+
 def clean(df: pd.DataFrame) -> list[dict]:
     """Records with NaN/NaT turned into null (valid JSON)."""
     return json.loads(df.to_json(orient="records"))
@@ -211,7 +239,7 @@ def clean(df: pd.DataFrame) -> list[dict]:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", choices=["databricks", "duckdb"], default="databricks")
-    ap.add_argument("--only", choices=["q1", "q2", "q3", "q4", "q5"], help="export just one page's data")
+    ap.add_argument("--only", choices=["q1", "q2", "q3", "q4", "q5", "model"], help="export just one page's data")
     a = ap.parse_args()
     source = a.source
     if a.only in (None, "q2"):
@@ -222,7 +250,9 @@ def main():
         export_q4(source)
     if a.only in (None, "q5"):
         export_q5(source)
-    if a.only in ("q2", "q3", "q4", "q5"):
+    if a.only in (None, "model"):
+        export_model(source)
+    if a.only in ("q2", "q3", "q4", "q5", "model"):
         return
     t = fetch(source)
     days = t["days"]

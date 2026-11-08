@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@databricks/sql": "^3.0.0",
+    "jose": "4.15.9",
     "next": "16.4.5",
     "react": "19.3.0",
     "react-dom": "19.3.0",

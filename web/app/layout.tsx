@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Suspense } from "react";
 import { SiteNav } from "@/components/SiteNav";
+import { UserMenu } from "@/components/UserMenu";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({ variable: "--font-cormorant", subsets: ["latin"], weight: ["500", "600"] });
@@ -23,6 +25,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               The Gilded Ace
             </a>
             <SiteNav />
+            <Suspense fallback={null}>
+              <UserMenu />
+            </Suspense>
           </div>
         </header>
         <main className="wrap">{children}</main>

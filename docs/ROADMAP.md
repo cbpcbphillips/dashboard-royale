@@ -18,16 +18,15 @@ Filters: period on every tab, with a warning on short windows (D-046); bank on Q
 
 ## To do (in order)
 Working rule (2026-11-08): get every question to a good baseline first; polish comes after deployment.
-1. ~~Q1~~ done: `/machines`, plan of record `docs/Q1.md`, claims C17–C20.
-2. **Q2–Q5 tabs:** one plain answer, 2–3 simple charts each, period filter where cheap, links to claims (C05–C13), built on the gold tables.
-3. **Q6 Plan tab:** draft ≤3 actions within $100k for Carson to decide (candidates: inspect M-1158, Ridgeline preventive maintenance, Back Forty wayfinding, promotion weekend); costs, effect ranges, measurement plan, each linked to evidence.
-4. **Overview page:** six one-sentence answers with "see why" links.
-5. **How we checked tab:** model validation in plain words (C14–C16) above the claims list (built).
-6. **Deploy (D-009), Devpost write-up, video, AI disclosure.**
-7. **After deployment: clean up imperfections** (only if time allows), e.g.:
+Done: all six pages (Machines, Demand, Downtime, Players, Comps, July plan), Summary, Evidence with model checks, cost analysis (D-083), first deploy (https://dashboard-royale.vercel.app).
+1. **Push the latest build** (Carson commits; first add `AUTH_SECRET` and `STAFF_ACCOUNTS` in Vercel, D-084): Evidence model checks and anything after the first deploy; re-check the live site.
+2. **Venue network check:** open the live link off Wi-Fi (phone); if the venue's Cisco Umbrella filter blocks it, ask organizers to allow the domain.
+3. **Claims for the remaining page numbers:** the July plan cost analysis (budget.py results) and Summary-only figures, so every number in the write-up/video has a claim.
+4. **After deployment: clean up imperfections** (only if time allows):
    - Q1 quiet-spot label on banks only slightly below the floor (Bar Row B-21/B-24, Hotel B-40/B-41 at 90–98%).
    - Older claims still say "Used in: Verdict" (page removed).
    - Visual polish and wording passes on every tab.
+5. **Final submission (when Carson says):** ≤400-word write-up, ≤2-minute video, Claims & Evidence appendix (from `docs/claims.md`), AI disclosure (`docs/AI_USE.md`), Devpost form; private-window test of the four judge tests.
 
 ## Open items
 - D-009 public repo & host (before first deploy).

@@ -368,12 +368,14 @@ Chart count, model complexity and the number of patterns found **don't** score p
 
 ## 8. What to submit on Devpost
 
+Devpost Link: https://tamu-datathon-26-casino-royale.devpost.com/
+
 - [ ] **A public interactive dashboard** that judges can open: a link or a file, any tool
 - [ ] **Video walkthrough**, 2 minutes or less, showcasing your dashboard and explaining your priced actions
 - [ ] **Write-up**, 400 words or less
 - [ ] **One ML or time-series method** that informs a decision, compared with a simple baseline on a time-based holdout
 - [ ] **All code** or transformation steps
-- [ ] **Up to 3 priced action types** from `action_catalog`, each with cost, expected effect, uncertainty and measurement plan
+- [ ] **Up to 3 priced action types** from `action_catalog`, each with cost, sexpected effect, uncertainty and measurement plan
 - [ ] **AI-use disclosure**: what you used and for what (include in the appendix)
 - [ ] **Claims & Evidence appendix**: for each claim, the table/query → result → alternative explanation → limitation
 

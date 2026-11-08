@@ -3,7 +3,7 @@
 import { scryptSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { SESSION_COOKIE, SESSION_HOURS, type Session, signSession } from "@/lib/session";
+import { SESSION_COOKIE, SESSION_HOURS, type Session, isLocalPath, signSession } from "@/lib/session";
 
 // STAFF_ACCOUNTS = "email|Display Name|salt|hash;email|Display Name|salt|hash" (hex scrypt, 64-byte key),
 // created with `node scripts/add-staff.mjs`. Passwords themselves are never stored.
@@ -21,10 +21,7 @@ function findStaff(email: string, password: string): Session | null {
   return null;
 }
 
-const safeNext = (v: FormDataEntryValue | null) => {
-  const s = typeof v === "string" ? v : "";
-  return s.startsWith("/") && !s.startsWith("//") ? s : "/";
-};
+const safeNext = (v: FormDataEntryValue | null) => isLocalPath(typeof v === "string" ? v : "") ? (v as string) : "/";
 
 async function start(session: Session, next: string) {
   (await cookies()).set(SESSION_COOKIE, await signSession(session), {

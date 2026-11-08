@@ -1,6 +1,7 @@
 """Compare the app's Q1 numbers (GET /api/q1) with the Python reference for several periods.
 Run with the dev server up: uv run python -m royale.q1_check_app"""
 import json
+import os
 import urllib.request
 
 import duckdb
@@ -18,7 +19,10 @@ def main():
     ok_all = True
     for frm, to in PERIODS:
         ref = Q.compute(df, frm, to, tau2).set_index("machine_id")
-        app = json.loads(urllib.request.urlopen(f"http://localhost:3000/api/q1?from={frm}&to={to}", timeout=120).read())
+        req = urllib.request.Request(f"http://localhost:3000/api/q1?from={frm}&to={to}")
+        if os.environ.get("GILDED_SESSION"):  # the app is staff-only (D-084): pass a session cookie (e.g. from Judge / demo access)
+            req.add_header("Cookie", f"gilded_session={os.environ['GILDED_SESSION']}")
+        app = json.loads(urllib.request.urlopen(req, timeout=120).read())
         a = {m["machine_id"]: m for m in app["machines"]}
         diffs = {k: 0.0 for k in ("score", "play_short", "play_z", "luck_z", "bank_ratio")}
         lab_mismatch = 0

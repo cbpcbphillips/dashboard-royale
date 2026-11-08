@@ -23,7 +23,6 @@ Done: all six pages, Summary, Evidence with model checks, cost analysis (D-083),
 2. **Venue network check:** open the live link off Wi-Fi (phone); if the venue's Cisco Umbrella filter blocks it, ask organizers to allow the domain.
 3. **Claims for the remaining page numbers:** the July plan cost analysis (budget.py results) and Summary-only figures, so every number in the write-up/video has a claim.
 4. **After deployment: clean up imperfections** (only if time allows):
-   - Q1 quiet-spot label on banks only slightly below the floor (Bar Row B-21/B-24, Hotel B-40/B-41 at 90–98%).
    - Visual polish and wording passes on every tab (reviewers may find Summary and drill-downs text-heavy; more charts, fewer words).
    - Header crowds at narrow widths now that the sign-in chip is there.
 5. **Final submission (when Carson says):** ≤400-word write-up, ≤2-minute video, Claims & Evidence appendix (from `docs/claims.md`), AI disclosure (`docs/AI_USE.md`), Devpost form; private-window test of the four judge tests.

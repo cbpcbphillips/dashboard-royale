@@ -72,7 +72,7 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
         <section className="card" aria-labelledby="month-title">
           <h2 className="section" id="month-title">When: expected earnings lost by month <Ev id="C12" /></h2>
           <p className="cap">{r.scopeName}, {label}. An upper bound: some players move to a neighbouring machine.</p>
-          <table className="q2-table">
+          <div className="table-scroll"><table className="q2-table">
             <thead><tr><th scope="col">Month</th><th scope="col" className="num">Lost</th><th scope="col" className="num">Hours down</th><th scope="col" className="bar-col"></th></tr></thead>
             <tbody>
               {r.months.map((m) => (
@@ -84,28 +84,28 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </section>
 
         <section className="card" aria-labelledby="staff-title">
           <h2 className="section" id="staff-title">Why: repairs wait when slot techs are short <Ev id="C05" /></h2>
           <p className="cap">All shifts in {label} (techs cover the whole floor). Wait = breakdown to repair starting.</p>
-          <table className="q2-table">
+          <div className="table-scroll"><table className="q2-table">
             <thead><tr><th scope="col">Shifts</th><th scope="col" className="num">Count</th><th scope="col" className="num">Breakdowns / shift</th><th scope="col" className="num">Average wait</th></tr></thead>
             <tbody>
               {r.staffing.map((s) => (
                 <tr key={s.label}><th scope="row">{s.label}</th><td className="num">{s.shifts}</td><td className="num">{s.faultsPerShift.toFixed(1)}</td><td className="num">{hrs(s.avgWait)}</td></tr>
               ))}
             </tbody>
-          </table>
-          <table className="q2-table" style={{ marginTop: 14 }}>
+          </table></div>
+          <div className="table-scroll"><table className="q2-table" style={{ marginTop: 14 }}>
             <thead><tr><th scope="col">Shift</th><th scope="col" className="num">Tech-shifts worked / planned</th><th scope="col" className="num">Average wait</th></tr></thead>
             <tbody>
               {r.byShift.map((s) => (
                 <tr key={s.shift}><th scope="row">{s.shift[0].toUpperCase() + s.shift.slice(1)}</th><td className="num">{s.actual} / {s.planned}</td><td className="num">{hrs(s.avgWait)}</td></tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
           <p className="ev">{staffNote(r)}</p>
         </section>
       </div>
@@ -114,20 +114,20 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
         <section className="card" aria-labelledby="maker-title">
           <h2 className="section" id="maker-title">Which makers break down most <Ev id="C06" /></h2>
           <p className="cap">Whole floor, {label}. Per 1,000 days on the floor, so makers with more machines compare fairly.</p>
-          <table className="q2-table">
+          <div className="table-scroll"><table className="q2-table">
             <thead><tr><th scope="col">Maker</th><th scope="col" className="num">Machines</th><th scope="col" className="num">Breakdowns per 1,000 days</th><th scope="col" className="num">Expected earnings lost</th></tr></thead>
             <tbody>
               {r.makers.map((m) => (
                 <tr key={m.maker}><th scope="row">{m.maker}</th><td className="num">{m.machines}</td><td className="num">{m.faultsPer1000.toFixed(1)}</td><td className="num">{usd(m.lostTheo)}</td></tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </section>
 
         <section className="card" aria-labelledby="top-title">
           <h2 className="section" id="top-title">Machines that lost the most ({r.scopeName})</h2>
           <p className="cap">Pick a zone or bank above to drill in.</p>
-          <table className="q2-table">
+          <div className="table-scroll"><table className="q2-table">
             <thead><tr><th scope="col">Machine</th><th scope="col">Bank</th><th scope="col">Maker</th><th scope="col" className="num">Hours down</th><th scope="col" className="num">Lost</th></tr></thead>
             <tbody>
               {r.topMachines.map((m) => (
@@ -138,7 +138,7 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
           {!r.topMachines.length && <p className="ev">No downtime in this selection.</p>}
         </section>
       </div>

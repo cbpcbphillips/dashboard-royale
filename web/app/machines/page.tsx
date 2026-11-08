@@ -38,10 +38,11 @@ export default function Q1Page(props: PageProps<"/machines">) {
 async function Q1Content({ searchParams }: { searchParams: PageProps<"/machines">["searchParams"] }) {
   const raw = await searchParams;
   const f = parseFilters(raw);
-  const page = Math.max(1, Number(Array.isArray(raw.page) ? raw.page[0] : raw.page) || 1);
+  const requestedPage = Math.max(1, Math.floor(Number(Array.isArray(raw.page) ? raw.page[0] : raw.page)) || 1);
   const r = await q1For(f.from, f.to);
 
   const inScope = r.machines.filter((m) => (!f.zone || m.zoneId === f.zone) && (!f.bank || m.bankId === f.bank));
+  const page = Math.min(requestedPage, Math.max(1, Math.ceil(inScope.length / PAGE_SIZE)));
   const pageRows = inScope.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const selected = r.machines.find((m) => m.id === f.machine) ?? inScope[0];
   const sentence = answerSentence(r, inScope);

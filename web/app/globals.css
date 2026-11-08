@@ -57,6 +57,13 @@ a { color: inherit; }
 .nav a { color: var(--ink2); text-decoration: none; font-size: 0.94rem; padding: 6px 10px; border-radius: 6px; white-space: nowrap; flex: none; }
 .nav a:hover { background: var(--accent-soft); }
 .nav a[aria-current="page"] { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
+/* Below wide desktop the tabs get their own row and wrap, so every tab (incl. Evidence) is always visible. */
+.site-header .wrap { flex-wrap: wrap; }
+@media (max-width: 1279px) {
+  .site-header .nav { order: 3; flex: 1 0 100%; flex-wrap: wrap; overflow: visible; padding-bottom: 8px; margin-left: -10px; }
+  .site-header .user-menu { margin-left: auto; }
+}
+@media (max-width: 640px) { .site-header { position: static; } } /* the wrapped tabs are tall on phones: let them scroll away */
 
 /* ---------- filters ---------- */
 .filters { display: flex; gap: 8px 10px; flex-wrap: wrap; margin: 16px 0 10px; align-items: center; }

@@ -15,7 +15,10 @@ async function q4For(from: string, to: string, dim: string, grp: string) {
 }
 
 const usd = (x: number) => `${x < 0 ? "−" : ""}$${Math.round(Math.abs(x)).toLocaleString("en-US")}`;
-const big = (x: number) => `${x < 0 ? "−" : ""}$${(Math.abs(x) / 1e6).toFixed(1)}M`;
+const big = (x: number) => {
+  const a = Math.abs(x), s = x < 0 ? "−" : "";
+  return a >= 1e6 ? `${s}$${(a / 1e6).toFixed(1)}M` : a >= 1e4 ? `${s}$${Math.round(a / 1e3).toLocaleString("en-US")}k` : `${s}$${Math.round(a).toLocaleString("en-US")}`;
+};
 const pct = (x: number, d = 0) => `${(x * 100).toFixed(d)}%`;
 
 export default function Q4Page(props: PageProps<"/players">) {

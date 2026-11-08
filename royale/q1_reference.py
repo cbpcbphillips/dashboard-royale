@@ -30,6 +30,8 @@ from royale import targets
 
 ALPHA = 0.05
 MIN_DAYS = 30
+SHORT_WINDOW_DAYS = 56  # D-085: payout check only on periods of 8+ weeks
+QUIET_MAX_RATIO = 0.9  # D-085: quiet spot = proven AND bank at most 90% of the floor
 MIN_WEEKS = 2  # D-080b: no extra minimum; 2 weeks is the least that gives a week-to-week spread at all
 
 
@@ -136,9 +138,10 @@ def compute(df: pd.DataFrame, frm: str, to: str, tau2: float) -> pd.DataFrame:
     for t in ("play", "luck", "avail"):
         o[f"{t}_p_holm"] = holm(o[f"{t}_p"].values)
     min_days = min(MIN_DAYS, period_days)
-    o["L_quiet"] = o.bank_p_holm < ALPHA
+    o["L_quiet"] = (o.bank_p_holm < ALPHA) & (o.bank_ratio <= QUIET_MAX_RATIO)
     o["L_down"] = o.avail_p_holm < ALPHA
-    o["L_paying"] = o.luck_p_holm < ALPHA
+    payout_tested = period_days >= SHORT_WINDOW_DAYS
+    o["L_paying"] = payout_tested & (o.luck_p_holm < ALPHA)
     o["L_unpopular"] = o.play_p_holm < ALPHA
     o["L_new"] = o.days < min_days
     o["L_unconfirmed"] = (~o.L_down & (o.avail_p < ALPHA)) | (~o.L_paying & (o.luck_p < ALPHA)) | (~o.L_unpopular & (o.play_p < ALPHA))

@@ -12,6 +12,20 @@ const MEASURE: Record<string, string> = {
   "A-WAYFINDING": "Back Forty vs the rest of the floor, 30 days before vs after: time in use, coin-in per hour and door-counter traffic (the walkway-closure method).",
 };
 
+const WORDS = ["", "one", "two", "three"];
+/** One funded action as plain words, e.g. "two promotion weekends (Jul 18–20 and Jul 25–27, $30,000)". */
+function phrase(a: { action: string; qty: number; target: string; cost: number; name: string }) {
+  const n = WORDS[a.qty] ?? String(a.qty);
+  if (a.action === "A-PROMO") {
+    const dates = a.target.replace(/^.*\((.*)\)$/, "$1").replace(/-/g, "–").replace(", ", " and ");
+    return `${a.qty === 1 ? "one promotion weekend" : `${n} promotion weekends`} (${dates}, ${usd(a.cost)})`;
+  }
+  if (a.action === "A-INSPECT") return `an inspection of ${a.target} (${usd(a.cost)})`;
+  if (a.action === "A-WAYFINDING") return `new signs for ${a.target} (${usd(a.cost)})`;
+  return `${a.name.toLowerCase()} (${a.target}, ${usd(a.cost)})`;
+}
+const list = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+
 export default function Q6Page() {
   const chosen = Q6.chosen[0];
   const chosenParts = Q6.meta.chosen.split(" + ").map((s) => { const [action, q] = s.split(" x"); return { action, qty: q ? Number(q) : 1 }; });
@@ -32,9 +46,9 @@ export default function Q6Page() {
       </p>
 
       <p className="answer">
-        Fund {picked.map((a) => `${short(a.action).toLowerCase()}${a.qty > 1 ? ` ×${a.qty}` : ""} (${a.target}, ${usd(a.cost)})`).join(", ")}: {usd(chosen.cost)} in total, expected to return{" "}
-        {usd(chosen.net_mid)} more than it costs ({usd(chosen.net_low)} to {usd(chosen.net_high)}). Keep {usd(Q6.meta.budget - chosen.cost)} in reserve: the other actions
-        either lose money in July or add only a little. <Ev id="C10" /> <Ev id="C03" /> <Ev id="C11" />
+        Fund {list(picked.map(phrase))}: {usd(chosen.cost)} in total, expected to bring in {usd(chosen.net_mid)} more than it costs in July (somewhere between{" "}
+        {usd(chosen.net_low)} and {usd(chosen.net_high)}). Keep the other {usd(Q6.meta.budget - chosen.cost)}: every other action either loses money in July or adds only a
+        little. <Ev id="C22" /> <Ev id="C21" /> <Ev id="C10" /> <Ev id="C03" /> <Ev id="C11" />
       </p>
 
       <div className="kpis">
@@ -70,7 +84,7 @@ export default function Q6Page() {
       </section>
 
       <section className="card block" aria-labelledby="all-title">
-        <h2 className="section" id="all-title">Every action, costed for July</h2>
+        <h2 className="section" id="all-title">Every action, costed for July <Ev id="C21" /></h2>
         <p className="cap">Net = expected gain − cost, for July 1–30. Bar = best estimate; thin line = low to high. Grey area = loses money. Hover a row for how the gain was valued.</p>
         <div className="table-scroll">
           <table className="q2-table">
@@ -90,7 +104,7 @@ export default function Q6Page() {
                       <i className="netbar-mid" style={{ left: `${Math.min(x(a.net_mid), 50)}%`, width: `${Math.abs(x(a.net_mid) - 50)}%` }} data-neg={a.net_mid < 0 ? "1" : "0"} />
                     </span>
                   </td>
-                  <td>{a.evidence}</td>
+                  <td>{a.evidence.split(/,\s*/).map((id) => <Ev key={id} id={id} />)}</td>
                 </tr>
               ))}
             </tbody>
@@ -100,7 +114,7 @@ export default function Q6Page() {
       </section>
 
       <section className="card block" aria-labelledby="mix-title">
-        <h2 className="section" id="mix-title">The best mixes within $100k</h2>
+        <h2 className="section" id="mix-title">The best mixes within $100k <Ev id="C22" /></h2>
         <p className="cap">All {Q6.n_portfolios} allowed mixes (up to 3 kinds of action; the two comp actions can&apos;t be combined) ranked by best-estimate net. Ours is highlighted.</p>
         <div className="table-scroll">
           <table className="q2-table">

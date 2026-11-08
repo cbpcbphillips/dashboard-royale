@@ -74,6 +74,17 @@ export default function Page() {
           ]}
         />
         <ul className="checks-list">
+          <li>
+            <b>The decision it changed.</b> The general manager planned to replace the 10 lowest earners: $33,800 to lease replacements, or $220,000 to buy them. The model
+            separates a machine from its spot, and a real move confirmed it (below). Of those 10, only M-1158 is a machine problem (a payout check); the rest earn little
+            because of where they sit or how long they were on the floor. So the July plan funds one inspection and Back Forty signage instead of replacements.{" "}
+            <Ev id="C15" /> <Ev id="C16" /> <Ev id="C09" />
+          </li>
+          <li>
+            <b>Two models, two jobs.</b> This forecasting model (tested here) supplies the location effect and the day-to-day forecast. The Machines page ranks machines
+            with a separate leave-one-out comparison model: each machine against the others on the same days, checked month by month and recomputed three ways{" "}
+            <Ev id="C17" /> <Ev id="C18" />.
+          </li>
           <li><b>Every method over-predicts by about $1 per open hour.</b> The floor got about 5% quieter after April, which nothing known on April 30 could foresee <Ev id="C17" />. The model follows the weekly rhythm; the simple guesses can&apos;t.</li>
           <li><b>No peeking.</b> Scrambling every May–June outcome changed no prediction (largest change {leak.toFixed(1)}), so nothing from the test months leaked into the model. Its settings were chosen on an inner January–March → April split.</li>
           {move && (

@@ -15,6 +15,17 @@ function key(): Uint8Array | null {
 
 export const authConfigured = () => key() !== null;
 
+/** True only for a path on this site ("/plan?x=1"). Rejects "//host", "/\host" (browsers read "\" as "/"),
+ *  absolute URLs and control characters, so the post-sign-in redirect can't leave the site. */
+export function isLocalPath(p: string): boolean {
+  if (!p.startsWith("/") || p.startsWith("//") || /[\\\u0000-\u001f\u007f]/.test(p)) return false;
+  try {
+    return new URL(p, "https://local.invalid").origin === "https://local.invalid";
+  } catch {
+    return false;
+  }
+}
+
 export async function signSession(s: Session): Promise<string> {
   const k = key();
   if (!k) throw new Error("AUTH_SECRET is not set (at least 32 characters)");

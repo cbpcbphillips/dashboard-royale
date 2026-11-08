@@ -29,6 +29,10 @@ const data: Q1Data = JSON.parse(readFileSync(path.join(process.cwd(), "data", "q
 const ALPHA = 0.05;
 const MIN_DAYS = 30;
 const SHORT_WINDOW_DAYS = 56;
+// D-085: one big jackpot can look like a payout fault on a short period, so the payout check only runs on 8+ weeks,
+// and a quiet spot must be both proven and materially quiet (bank at most 90% of the floor's time in use).
+const PAYOUT_MIN_DAYS = SHORT_WINDOW_DAYS;
+const QUIET_MAX_RATIO = 0.9;
 
 const R = data.rows;
 const DATES: string[] = data.dates;
@@ -267,11 +271,12 @@ export function computeQ1(from: string, to: string): Q1Result {
 
   for (const m of ms) {
     const L: Label[] = [];
-    if (m.bankPHolm < ALPHA)
+    if (m.bankPHolm < ALPHA && m.bankRatio <= QUIET_MAX_RATIO)
       L.push({ key: "quiet", text: "Quiet spot", detail: `Its bank (${m.bankId}) is played ${Math.round(m.bankRatio * 100)}% as much as the floor average.` });
     if (m.availPHolm < ALPHA)
       L.push({ key: "down", text: "Down too often", detail: `${m.faults} breakdowns vs about ${m.faultsExpected.toFixed(1)} normal for a ${m.maker} machine over ${m.days} days.` });
-    const paying = m.luckPHolm < ALPHA;
+    const payoutTested = periodDays >= PAYOUT_MIN_DAYS;
+    const paying = payoutTested && m.luckPHolm < ALPHA;
     if (paying)
       L.push({ key: "paying", text: "Paying too much: inspect", detail: `Kept ${money(m.luck)} less than its game settings imply. That is too much to be chance; a lead to inspect, not an accusation.` });
     if (m.playPHolm < ALPHA)
@@ -280,9 +285,11 @@ export function computeQ1(from: string, to: string): Q1Result {
     else {
       const unconfirmed: [string, number][] = [];
       if (m.playPHolm >= ALPHA && m.playP < ALPHA) unconfirmed.push(["play", m.playZ]);
-      if (!paying && m.luckP < ALPHA) unconfirmed.push(["payout", m.luckZ]);
+      if (payoutTested && !paying && m.luckP < ALPHA) unconfirmed.push(["payout", m.luckZ]);
       if (m.availPHolm >= ALPHA && m.availP < ALPHA) unconfirmed.push(["uptime", normInv(m.availP)]);
-      if (unconfirmed.length) {
+      if (!payoutTested && m.luckP < ALPHA)
+        L.push({ key: "lowSample", text: "Low sample size", detail: `Kept ${money(m.luck)} less than its game settings imply this period. One big payout can do that; the payout check needs at least 8 weeks of data.` });
+      else if (unconfirmed.length) {
         const [what, z] = unconfirmed.sort((x, y) => x[1] - y[1])[0];
         L.push({ key: "lowSample", text: "Low sample size", detail: `Looks low on ${what}; about ${monthsToSettle(m, z)} more months of similar results would confirm it.` });
       }
@@ -320,7 +327,7 @@ export function answerSentence(r: Q1Result, inScope: MachineResult[]): string | 
   const parts: string[] = [];
   const unpop = c("unpopular"), paying = c("paying"), down = c("down"), quiet = c("quiet");
   if (unpop) parts.push(`${unpop} ${unpop === 1 ? "machine gets" : "machines get"} clearly less play than identical machines in the same kind of spot`);
-  if (paying) parts.push(`${paying} ${paying === 1 ? "is" : "are"} paying out too much and should be inspected`);
+  if (paying) parts.push(`${paying} ${parts.length ? "" : paying === 1 ? "machine " : "machines "}${paying === 1 ? "is" : "are"} paying out too much and should be inspected`);
   if (down) parts.push(`${down} ${down === 1 ? "breaks" : "break"} down more than normal`);
   if (!parts.length) parts.push(r.shortWindow || r.periodDays < 120 ? "no single machine can be proven to underperform with this much data (the full six months can prove more)" : "no machine is clearly underperforming once its spot, game and luck are accounted for");
   let s = parts.join("; ");

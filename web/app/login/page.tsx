@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { isLocalPath } from "@/lib/session";
 import { LoginForm } from "./LoginForm";
 
 export const metadata = { title: "Sign in · The Gilded Ace" };
@@ -24,6 +25,6 @@ export default function LoginPage(props: PageProps<"/login">) {
 
 async function Form({ searchParams }: { searchParams: PageProps<"/login">["searchParams"] }) {
   const raw = (await searchParams).next;
-  const next = typeof raw === "string" && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/";
+  const next = typeof raw === "string" && isLocalPath(raw) ? raw : "/";
   return <LoginForm next={next} />;
 }

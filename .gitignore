@@ -1,0 +1,10 @@
+local/
+__pycache__/
+.databricks/
+# Public submission repo: organizer data stays out (reference/SOURCE_TERMS.md: blocked sources must not be
+# published; judges already have the dataset). Local tooling and secrets stay out too.
+/data/
+.idea/
+.claude/
+.env*
+!.env.example

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Style gallery</title>
+<style>
+  body { margin:0; background:#e9e9e6; font:13px/1.4 system-ui, sans-serif; color:#111; }
+  h1 { font-size:16px; font-weight:600; margin:14px 16px 4px; }
+  p { margin:0 16px 12px; color:#555; }
+  .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; padding:0 16px 16px; }
+  .tile { background:#fff; border:1px solid #d6d6d0; border-radius:10px; overflow:hidden; }
+  .tile .lbl { padding:6px 10px; font-weight:600; border-bottom:1px solid #e3e3df; }
+  .frame { position:relative; width:100%; aspect-ratio: 1280 / 820; overflow:hidden; }
+  .frame iframe { position:absolute; top:0; left:0; width:1280px; height:820px; border:0; transform-origin:0 0; pointer-events:none; }
+  a { color:inherit; text-decoration:none; }
+</style>
+</head>
+<body>
+<h1>Twelve looks for the same Verdict page</h1>
+<p>Same layout and real numbers in every tile. Click a tile to open it full size.</p>
+<div class="grid" id="g"></div>
+<script>
+const styles = [["gilded","A · Gilded Ace"],["noir","B · Casino noir"],["analyst","C · Neutral analyst"],["deco","D · Art Deco"],
+  ["neon","E · Vegas neon"],["mojave","F · Mojave"],["felt","G · Felt & chips"],["ledger","H · Editorial ledger"],
+  ["midnight","I · Midnight pro"],["velvet","J · Burgundy velvet"],["swiss","K · Swiss mono"],["terminal","L · Ops terminal"]];
+const g = document.getElementById("g");
+g.innerHTML = styles.map(([k, n]) => `<a class="tile" href="index.html#${k}"><div class="lbl">${n}</div><div class="frame"><iframe src="index.html?bare=1#${k}" loading="eager" title="${n}"></iframe></div></a>`).join("");
+function fit() { document.querySelectorAll(".frame").forEach(f => { f.querySelector("iframe").style.transform = `scale(${f.clientWidth / 1280})`; }); }
+addEventListener("resize", fit); fit();
+</script>
+</body>
+</html>

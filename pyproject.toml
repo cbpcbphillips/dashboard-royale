@@ -1,0 +1,16 @@
+[project]
+name = "dashboard-royale"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "databricks-sdk>=0.162.0",
+    "databricks-sql-connector>=4.9.0",
+    "duckdb>=2.0.0",
+    "mlflow-skinny>=3.18.0",
+    "numpy>=2.5.4",
+    "pandas>=3.1.1",
+    "plotly>=7.1.0",
+    "pyarrow>=26.0.1",
+    "scikit-learn>=1.9.1",
+    "streamlit>=1.67.0",
+]

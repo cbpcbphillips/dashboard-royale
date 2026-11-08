@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Style mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600&family=Josefin+Sans:wght@400;600&family=Bebas+Neue&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Oswald:wght@500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Cormorant+Garamond:wght@500;600&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- theme A: Gilded Ace (felt green + brass on cream) ---------- */
+  body[data-style="gilded"] {
+    --page:#f3f3ee; --card:#fdfdf9; --ink:#1f3a2e; --ink2:#4f5f56; --muted:#7b8a82; --line:#e3e3da; --grid:#e6e6dd;
+    --brand:#234f3b; --brand-ink:#ffffff; --accent:#b8975a; --accent-soft:#f4ecd9;
+    --bar:#9fb3a6; --bar-hi:#b8975a; --ref:#234f3b;
+    --head-font:"DM Serif Display", Georgia, serif; --body-font:Inter, system-ui, sans-serif; --head-weight:400;
+    --chip-loc:#2a78d6; --chip-insp:#e34948; --chip-ret:#898781; --chip-mg:#eb6834;
+  }
+  /* ---------- theme B: Casino noir (charcoal + gold) ---------- */
+  body[data-style="noir"] {
+    --page:#0f1012; --card:#18191d; --ink:#f0efec; --ink2:#c3c2b7; --muted:#8d8b84; --line:#2a2b30; --grid:#26272b;
+    --brand:#d2b072; --brand-ink:#0f1012; --accent:#d2b072; --accent-soft:#2c2618;
+    --bar:#4a4c53; --bar-hi:#d2b072; --ref:#c3c2b7;
+    --head-font:"Playfair Display", Georgia, serif; --body-font:Inter, system-ui, sans-serif; --head-weight:500;
+    --chip-loc:#3987e5; --chip-insp:#e66767; --chip-ret:#8d8b84; --chip-mg:#d95926;
+  }
+  /* ---------- theme C: Neutral analyst (white, slate, one blue) ---------- */
+  body[data-style="analyst"] {
+    --page:#f6f7f9; --card:#ffffff; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781; --line:#e4e4e0; --grid:#e1e0d9;
+    --brand:#0b0b0b; --brand-ink:#ffffff; --accent:#2a78d6; --accent-soft:#e8f1fc;
+    --bar:#c3c2b7; --bar-hi:#2a78d6; --ref:#52514e;
+    --head-font:Inter, system-ui, sans-serif; --body-font:Inter, system-ui, sans-serif; --head-weight:600;
+    --chip-loc:#2a78d6; --chip-insp:#e34948; --chip-ret:#898781; --chip-mg:#eb6834;
+  }
+  /* ---------- D: Art Deco (navy + champagne) ---------- */
+  body[data-style="deco"] {
+    --page:#0e1a2b; --card:#14233a; --ink:#f3ead7; --ink2:#c9bfa8; --muted:#8f95a3; --line:#2a3a55; --grid:#24344d;
+    --brand:#c9a96e; --brand-ink:#0e1a2b; --accent:#c9a96e; --accent-soft:#2a2f36;
+    --bar:#3d5170; --bar-hi:#c9a96e; --ref:#c9bfa8;
+    --head-font:"Josefin Sans", sans-serif; --body-font:Inter, system-ui, sans-serif; --head-weight:600; --head-case:uppercase; --head-track:.06em;
+    --chip-loc:#3987e5; --chip-insp:#e66767; --chip-ret:#8f95a3; --chip-mg:#d95926;
+  }
+  /* ---------- E: Vegas neon (deep violet + hot pink/cyan) ---------- */
+  body[data-style="neon"] {
+    --page:#120a22; --card:#1b1131; --ink:#f7f2ff; --ink2:#cbbde6; --muted:#9488ad; --line:#33244f; --grid:#2b1f45;
+    --brand:#ff3ea5; --brand-ink:#120a22; --accent:#22d3ee; --accent-soft:#2a1846;
+    --bar:#44356a; --bar-hi:#ff3ea5; --ref:#22d3ee;
+    --head-font:"Bebas Neue", sans-serif; --body-font:Outfit, system-ui, sans-serif; --head-weight:400; --head-case:none; --head-track:.02em; --head-scale:1.25;
+    --chip-loc:#22d3ee; --chip-insp:#ff3ea5; --chip-ret:#9488ad; --chip-mg:#f59e0b;
+  }
+  /* ---------- F: Mojave (sand + terracotta + sage) ---------- */
+  body[data-style="mojave"] {
+    --page:#f5ede0; --card:#fbf7f0; --ink:#3b2a20; --ink2:#6b5546; --muted:#9a8576; --line:#e6d8c4; --grid:#ead9c3;
+    --brand:#c4572e; --brand-ink:#ffffff; --accent:#c4572e; --accent-soft:#f6e1d3;
+    --bar:#b9b49a; --bar-hi:#c4572e; --ref:#6b5546;
+    --head-font:Fraunces, Georgia, serif; --body-font:Inter, system-ui, sans-serif; --head-weight:600;
+    --chip-loc:#2a78d6; --chip-insp:#c0392b; --chip-ret:#9a8576; --chip-mg:#e08a1e;
+  }
+  /* ---------- G: Felt & chips (casino green page, white cards, chip red) ---------- */
+  body[data-style="felt"] {
+    --page:#0b5d3b; --card:#ffffff; --ink:#10261c; --ink2:#3f5a4c; --muted:#6f8579; --line:#dfe7e2; --grid:#e3ebe6;
+    --brand:#c8102e; --brand-ink:#ffffff; --accent:#c8102e; --accent-soft:#fdeaec;
+    --bar:#a9c2b4; --bar-hi:#c8102e; --ref:#10261c;
+    --head-font:Oswald, sans-serif; --body-font:Inter, system-ui, sans-serif; --head-weight:600; --head-case:uppercase; --head-track:.01em;
+    --page-ink:#ffffff; --page-ink2:#cfe6da;
+    --chip-loc:#2a78d6; --chip-insp:#c8102e; --chip-ret:#898781; --chip-mg:#eb6834;
+  }
+  /* ---------- H: Editorial ledger (newsprint, black ink, red accent) ---------- */
+  body[data-style="ledger"] {
+    --page:#faf8f3; --card:#faf8f3; --ink:#111111; --ink2:#444444; --muted:#7a7770; --line:#d8d4c8; --grid:#e4e0d6;
+    --brand:#111111; --brand-ink:#faf8f3; --accent:#b91c1c; --accent-soft:#f3e7e2;
+    --bar:#bdb8ab; --bar-hi:#b91c1c; --ref:#111111;
+    --head-font:Newsreader, Georgia, serif; --body-font:"IBM Plex Sans", system-ui, sans-serif; --head-weight:600; --card-radius:0px;
+    --chip-loc:#2a78d6; --chip-insp:#b91c1c; --chip-ret:#7a7770; --chip-mg:#eb6834;
+  }
+  /* ---------- I: Midnight pro (slate dark, teal, mono figures) ---------- */
+  body[data-style="midnight"] {
+    --page:#0b1220; --card:#111a2c; --ink:#e6edf7; --ink2:#a9b6cb; --muted:#7d8aa0; --line:#1f2b42; --grid:#1c2740;
+    --brand:#2dd4bf; --brand-ink:#0b1220; --accent:#2dd4bf; --accent-soft:#12302f;
+    --bar:#34425d; --bar-hi:#2dd4bf; --ref:#a9b6cb;
+    --head-font:"IBM Plex Sans", system-ui, sans-serif; --body-font:"IBM Plex Sans", system-ui, sans-serif; --head-weight:600; --num-font:"IBM Plex Mono", monospace;
+    --chip-loc:#3987e5; --chip-insp:#e66767; --chip-ret:#7d8aa0; --chip-mg:#d95926;
+  }
+  /* ---------- J: Burgundy velvet (cream, oxblood, gold) ---------- */
+  body[data-style="velvet-inter"] { --num-font:Inter, system-ui, sans-serif; --num-weight:600; }
+  body[data-style="velvet-dmserif"] { --num-font:"DM Serif Display", Georgia, serif; --num-weight:400; }
+  body[data-style="velvet-fraunces"] { --num-font:Fraunces, Georgia, serif; --num-weight:600; }
+  body[data-style="velvet-playfair"] { --num-font:"Playfair Display", Georgia, serif; --num-weight:600; }
+  body[data-style="velvet"], body[data-style^="velvet-"] {
+    --page:#fbf7f4; --card:#ffffff; --ink:#3a1021; --ink2:#6b4652; --muted:#99808a; --line:#eedfe2; --grid:#f0e3e6;
+    --brand:#6d1a36; --brand-ink:#fbeedd; --accent:#b08d57; --accent-soft:#f6ece2;
+    --bar:#cdb6bd; --bar-hi:#6d1a36; --ref:#3a1021;
+    --head-font:"Cormorant Garamond", Georgia, serif; --body-font:Inter, system-ui, sans-serif; --head-weight:600; --head-scale:1.15;
+    --chip-loc:#2a78d6; --chip-insp:#c0392b; --chip-ret:#99808a; --chip-mg:#e08a1e;
+  }
+  /* ---------- K: Swiss mono (white, black, one red) ---------- */
+  body[data-style="swiss"] {
+    --page:#ffffff; --card:#ffffff; --ink:#000000; --ink2:#333333; --muted:#777777; --line:#000000; --grid:#e5e5e5;
+    --brand:#e30613; --brand-ink:#ffffff; --accent:#e30613; --accent-soft:#f2f2f2;
+    --bar:#cfcfcf; --bar-hi:#e30613; --ref:#000000;
+    --head-font:"Space Grotesk", sans-serif; --body-font:"Space Grotesk", sans-serif; --head-weight:700; --card-radius:0px; --head-track:-.02em;
+    --chip-loc:#2a78d6; --chip-insp:#e30613; --chip-ret:#777777; --chip-mg:#eb6834;
+  }
+  /* ---------- L: Ops terminal (near-black, phosphor green, mono) ---------- */
+  body[data-style="terminal"] {
+    --page:#070b08; --card:#0d140f; --ink:#d8f5dc; --ink2:#9cc7a3; --muted:#6b8f71; --line:#1d2b20; --grid:#18241b;
+    --brand:#39d353; --brand-ink:#070b08; --accent:#39d353; --accent-soft:#122016;
+    --bar:#2b3d2f; --bar-hi:#39d353; --ref:#9cc7a3;
+    --head-font:"JetBrains Mono", monospace; --body-font:"JetBrains Mono", monospace; --head-weight:600; --card-radius:4px;
+    --chip-loc:#3987e5; --chip-insp:#e66767; --chip-ret:#6b8f71; --chip-mg:#d95926;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:14px/1.5 var(--body-font); }
+  h1, .brand, .kpi .value, .score h3 { text-transform:var(--head-case, none); letter-spacing:var(--head-track, normal); }
+  .kpi .value, .score h3 { font-variant-numeric:lining-nums; font-family:var(--num-font, var(--head-font)) !important; font-weight:var(--num-weight, var(--head-weight)) !important; }
+  .card { border-radius:var(--card-radius, 12px) !important; }
+  .eyebrow, h1, .sub, .filters label { }
+  body[data-style="felt"] main > .eyebrow { color:#f4c95d; }
+  body[data-style="felt"] main > h1 { color:var(--page-ink); }
+  body[data-style="felt"] main > .sub { color:var(--page-ink2); }
+  h1 { font-size:calc(38px * var(--head-scale, 1)) !important; }
+  .kpi .value { font-size:calc(30px * var(--head-scale, 1)) !important; }
+  .switch { position:sticky; top:0; z-index:5; display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:8px; background:#222; }
+  .switch button { font:12px Inter, sans-serif; padding:6px 12px; border-radius:6px; border:1px solid #555; background:#333; color:#eee; cursor:pointer; }
+  .switch button.on { background:#eee; color:#111; }
+  .wrap { max-width:1200px; margin:0 auto; padding:0 20px; }
+  header { background:var(--card); border-bottom:1px solid var(--line); }
+  header .wrap { display:flex; align-items:center; justify-content:space-between; height:64px; gap:16px; }
+  .brand { display:flex; align-items:center; gap:10px; font:var(--head-weight) 22px var(--head-font); }
+  .logo { width:34px; height:34px; border-radius:8px; background:var(--brand); color:var(--brand-ink); display:grid; place-items:center; font:600 18px var(--body-font); }
+  nav { display:flex; gap:4px; flex-wrap:wrap; }
+  nav a { color:var(--ink2); text-decoration:none; font-size:13px; padding:6px 10px; border-radius:6px; }
+  nav a.on { background:var(--accent-soft); color:var(--ink); font-weight:500; }
+  .filters { display:flex; gap:10px; flex-wrap:wrap; margin:20px 0 8px; }
+  .filters label { display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:0 12px; height:36px; color:var(--muted); font-size:12px; }
+  .filters b { color:var(--ink); font-weight:500; }
+  .eyebrow { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-top:18px; }
+  h1 { font:var(--head-weight) 38px/1.15 var(--head-font); margin:6px 0 4px; }
+  .sub { color:var(--ink2); margin:0 0 18px; max-width:760px; }
+  .kpis { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; margin-bottom:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+  .kpi .label { color:var(--muted); font-size:12px; }
+  .kpi .value { font:var(--head-weight) 30px/1.1 var(--head-font); margin:8px 0 4px; }
+  .kpi .foot { color:var(--ink2); font-size:12px; }
+  .kpi.feature { background:var(--brand); border-color:var(--brand); color:var(--brand-ink); }
+  .kpi.feature .label, .kpi.feature .foot { color:inherit; opacity:.8; }
+  .ev { font-size:11px; color:var(--muted); margin-top:6px; }
+  .ev a { color:inherit; }
+  .row { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:16px; margin-bottom:16px; }
+  h2 { font:500 16px var(--body-font); margin:0 0 2px; }
+  .cap { color:var(--muted); font-size:12px; margin:0 0 10px; }
+  svg text { fill:var(--muted); font:11px var(--body-font); }
+  svg .lbl { fill:var(--ink2); font-size:12px; }
+  svg .val { fill:var(--ink); font-size:12px; font-variant-numeric:tabular-nums; paint-order:stroke; stroke:var(--card); stroke-width:4px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; color:var(--muted); font-weight:500; font-size:12px; padding:6px 8px; border-bottom:1px solid var(--line); }
+  td { padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  td.num { font-variant-numeric:tabular-nums; text-align:right; }
+  tr.sel td { background:var(--accent-soft); }
+  tbody tr { cursor:pointer; }
+  .chip { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:2px 8px; border-radius:999px; border:1px solid var(--line); white-space:nowrap; }
+  .chip i { width:8px; height:8px; border-radius:2px; display:inline-block; }
+  .why { color:var(--ink2); font-size:12px; }
+  .score h3 { font:var(--head-weight) 22px var(--head-font); margin:0; }
+  .score .meta { color:var(--muted); font-size:12px; margin-bottom:12px; }
+  .rk { display:grid; grid-template-columns:170px 1fr 128px; align-items:center; gap:10px; margin:9px 0; font-size:12px; }
+  .rk .track { height:8px; background:var(--grid); border-radius:4px; position:relative; }
+  .rk .fill { position:absolute; left:0; top:0; bottom:0; border-radius:4px; background:var(--bar); }
+  .rk .fill.low { background:var(--accent); }
+  .rk .r { text-align:right; font-variant-numeric:tabular-nums; color:var(--ink2); }
+  .verdict { margin-top:12px; padding:10px 12px; border-radius:8px; background:var(--accent-soft); font-size:13px; }
+  .tip { position:fixed; pointer-events:none; background:var(--ink); color:var(--card); padding:6px 10px; border-radius:6px; font-size:12px; opacity:0; }
+  @media (max-width: 900px) { .kpis { grid-template-columns:repeat(2,minmax(0,1fr)); } .row { grid-template-columns:1fr; } }
+</style>
+</head>
+<body data-style="gilded">
+<div class="switch">
+  <button data-s="gilded" class="on">A · Gilded Ace</button>
+  <button data-s="noir">B · Casino noir</button>
+  <button data-s="analyst">C · Neutral analyst</button>
+  <button data-s="deco">D · Art Deco</button>
+  <button data-s="neon">E · Vegas neon</button>
+  <button data-s="mojave">F · Mojave</button>
+  <button data-s="felt">G · Felt &amp; chips</button>
+  <button data-s="ledger">H · Editorial ledger</button>
+  <button data-s="midnight">I · Midnight pro</button>
+  <button data-s="velvet">J · Burgundy velvet</button>
+  <button data-s="velvet-inter">J1 · velvet, Inter cards</button>
+  <button data-s="velvet-dmserif">J2 · velvet, DM Serif cards</button>
+  <button data-s="velvet-fraunces">J3 · velvet, Fraunces cards</button>
+  <button data-s="velvet-playfair">J4 · velvet, Playfair cards</button>
+  <button data-s="swiss">K · Swiss mono</button>
+  <button data-s="terminal">L · Ops terminal</button>
+</div>
+<header><div class="wrap">
+  <div class="brand"><div class="logo">A</div>The Gilded Ace</div>
+  <nav><a class="on" href="#">Verdict</a><a href="#">Machines</a><a href="#">Demand</a><a href="#">Downtime</a><a href="#">Players</a><a href="#">Comps</a><a href="#">$100k plan</a><a href="#">Model</a><a href="#">Evidence</a></nav>
+</div></header>
+<main class="wrap">
+  <div class="filters">
+    <label>Period <b>Jan 1 – Jun 30, 2025</b></label>
+    <label>Zone <b>All zones</b></label>
+    <label>Bank <b>All banks</b></label>
+    <label>Guest group <b>All carded players</b></label>
+  </div>
+  <div class="eyebrow">Luck, location, or a leak?</div>
+  <h1>None of the manager's bottom 10 is a machine problem</h1>
+  <p class="sub">Seven sit in a weak spot, two are already retired, and one is paying out far more than its settings allow. Replacing them would not pay back in July.</p>
+
+  <section class="kpis">
+    <div class="card kpi feature"><div class="label">Back Forty earns per available hour</div><div class="value">$11.69</div><div class="foot">vs $17.88 floor average · same games earn 35–48% less there</div><div class="ev">Evidence: <a href="#">C02</a></div></div>
+    <div class="card kpi"><div class="label">M-1158 house win vs expected</div><div class="value">−4.6σ</div><div class="foot">3.0% hold vs 10% configured · inspect, not accuse</div><div class="ev">Evidence: <a href="#">C03</a></div></div>
+    <div class="card kpi"><div class="label">Replacements that pay back in 30 days</div><div class="value">0 of 308</div><div class="foot">best lease case −$2,450</div><div class="ev">Evidence: <a href="#">C09</a></div></div>
+    <div class="card kpi"><div class="label">$100k plan</div><div class="value">$23,700</div><div class="foot">promo weekend · inspect M-1158 · wayfinding · keep $76,300</div><div class="ev">Evidence: <a href="#">Plan</a></div></div>
+  </section>
+
+  <section class="row">
+    <div class="card">
+      <h2>Expected house win per available hour, by zone</h2>
+      <p class="cap">Theo ÷ available hours, Jan 1 – Jun 30. Luck-free and fair to machines that were down or new.</p>
+      <svg id="zones" viewBox="0 0 640 250" width="100%" role="img" aria-label="Bar chart: Back Forty earns $11.69 per available hour, every other zone $16.64 to $21.32; floor average $17.88."></svg>
+    </div>
+    <div class="card score" id="score"></div>
+  </section>
+
+  <section class="card" style="margin-bottom:28px">
+    <h2>The manager's bottom 10, re-examined</h2>
+    <p class="cap">Click a machine to see how it ranks. Ranked by total house win, as the manager did; verdict uses exposure, luck and neighbours.</p>
+    <table><thead><tr><th>#</th><th>Machine</th><th>Zone · bank</th><th class="num">Days</th><th class="num">House win</th><th>Verdict</th><th>Why</th></tr></thead><tbody id="rows"></tbody></table>
+  </section>
+</main>
+<div class="tip" id="tip"></div>
+<script>
+const zones = [["Back Forty",11.69],["High-Limit Room",16.64],["Garage Entrance",16.90],["Bar Row",17.68],["Hotel Corridor",18.23],["Center Pit",20.87],["Main Entrance",21.32]];
+const FLOOR = 17.88;
+const tag = { L:["Location","--chip-loc"], I:["Inspect","--chip-insp"], R:["Retired","--chip-ret"] };
+const ten = [
+  [1,"M-5076","Back Forty · B-38",49,3573,"L","Installed May 13 into the weakest bank; its bank earns 55% of floor"],
+  [2,"M-1158","Back Forty · B-31",181,15796,"I","Holds 3.0% vs 10% configured; luck z −4.57"],
+  [3,"M-1120","Back Forty · B-38",132,16355,"R","Retired May 12 (replaced by M-5076)"],
+  [4,"M-1118","High-Limit · B-27",55,20050,"R","Retired Feb 24"],
+  [5,"M-1238","Back Forty · B-35",181,24933,"L","Played 1.10× its bank-mates; bank earns 78% of floor"],
+  [6,"M-1181","Back Forty · B-38",181,26977,"L","Played 1.08× bank-mates; bank earns 53% of floor"],
+  [7,"M-1035","Back Forty · B-31",181,30304,"L","Played 1.07× bank-mates; bank earns 75% of floor"],
+  [8,"M-1179","Back Forty · B-36",181,30394,"L","Played 1.18× bank-mates; bank earns 71% of floor"],
+  [9,"M-1017","Back Forty · B-37",181,31940,"L","Played 1.06× bank-mates; bank earns 65% of floor"],
+  [10,"M-1265","Back Forty · B-33",181,32071,"L","Played 1.16× bank-mates; bank earns 71% of floor"],
+];
+const cards = { "M-1158": { title:"M-1158 · Desert Gold (G-STD90)", meta:"Back Forty · bank B-31 · 181 days · Ridgeline",
+  ranks:[["Earning rate (theo/hr)",264,308,"$11.97"],["Demand (coin-in/hr)",285,308,"$120"],["Occupancy",261,308,"25.4%"],["Availability",57,308,"99.9%"],["vs bank-mates (occupancy)",241,308,"0.93×"],["vs same game, floor-wide",39,48,"0.71×"],["Luck (house win vs theo)",308,308,"z −4.57"],["Contribution per day",307,308,"$77"]],
+  verdict:"Inspect: the shortfall is in payout, not play. Location also low (bank 69% of floor). Evidence C03, C15." } };
+
+function css(v){ return getComputedStyle(document.body).getPropertyValue(v).trim(); }
+function drawZones(){
+  const svg = document.getElementById("zones"), W=640, L=130, R=60, T=22, rowH=31;
+  const max = 24, x = v => L + (W-L-R) * v / max;
+  let s = "";
+  [0,6,12,18,24].forEach(t => { s += `<line x1="${x(t)}" x2="${x(t)}" y1="${T}" y2="${T+rowH*zones.length}" stroke="${css('--grid')}"/><text x="${x(t)}" y="${T+rowH*zones.length+16}" text-anchor="middle">$${t}</text>`; });
+  s += `<line x1="${x(FLOOR)}" x2="${x(FLOOR)}" y1="${T-6}" y2="${T+rowH*zones.length}" stroke="${css('--ref')}" stroke-dasharray="4 3"/><text x="${x(FLOOR)}" y="${T-10}" text-anchor="middle" style="fill:${css('--ink2')}">floor average $17.88</text>`;
+  zones.forEach(([n,v],i) => {
+    const y = T + i*rowH + 6, hi = i===0;
+    s += `<text class="lbl" x="${L-10}" y="${y+14}" text-anchor="end">${n}</text>`;
+    s += `<path d="M${x(0)},${y} H${x(v)-4} a4,4 0 0 1 4,4 V${y+16} a4,4 0 0 1 -4,4 H${x(0)} Z" fill="${hi?css('--bar-hi'):css('--bar')}" data-t="${n}: $${v.toFixed(2)} per available hour"/>`;
+    s += `<text class="val" x="${x(v)+6}" y="${y+14}">$${v.toFixed(2)}</text>`;
+  });
+  svg.innerHTML = s;
+}
+function drawRows(sel){
+  document.getElementById("rows").innerHTML = ten.map(([r,m,zb,d,hw,t,why]) =>
+    `<tr data-m="${m}" class="${m===sel?'sel':''}"><td>${r}</td><td><b>${m}</b></td><td>${zb}</td><td class="num">${d}</td><td class="num">$${hw.toLocaleString()}</td>
+     <td><span class="chip"><i style="background:var(${tag[t][1]})"></i>${tag[t][0]}</span></td><td class="why">${why}</td></tr>`).join("");
+}
+function drawScore(m){
+  const c = cards[m] || { title:m, meta:"Scorecard mockup shown for M-1158", ranks:[], verdict:"" };
+  document.getElementById("score").innerHTML = `<h3>${c.title}</h3><div class="meta">${c.meta}</div>` +
+    c.ranks.map(([k,r,n,v]) => { const pct = 100*(n-r+1)/n; return `<div class="rk"><span>${k}</span><div class="track"><div class="fill ${pct<25?'low':''}" style="width:${pct}%"></div></div><span class="r">${r} of ${n} · ${v}</span></div>`; }).join("") +
+    (c.verdict ? `<div class="verdict">${c.verdict}</div>` : "");
+}
+function render(){ drawZones(); drawRows("M-1158"); drawScore("M-1158"); }
+document.querySelectorAll(".switch button").forEach(b => b.onclick = () => {
+  document.body.dataset.style = b.dataset.s; document.querySelectorAll(".switch button").forEach(x => x.classList.toggle("on", x===b));
+  history.replaceState(null,"","#"+b.dataset.s); render(); });
+const tip = document.getElementById("tip");
+document.addEventListener("mousemove", e => { const t = e.target.closest("[data-t]"); if (t) { tip.textContent = t.dataset.t; tip.style.left = e.clientX+12+"px"; tip.style.top = e.clientY+12+"px"; tip.style.opacity = 1; } else tip.style.opacity = 0; });
+document.getElementById("rows").addEventListener("click", e => { const tr = e.target.closest("tr"); if (tr) { drawRows(tr.dataset.m); drawScore(tr.dataset.m); } });
+if (new URLSearchParams(location.search).has("bare")) document.querySelector(".switch").style.display = "none";
+const h = location.hash.slice(1); if (document.querySelector(`[data-s="${h}"]`)) document.querySelector(`[data-s="${h}"]`).click(); else render();
+</script>
+</body>
+</html>

@@ -16,7 +16,12 @@ export type Metric = {
 type ModelData = {
   meta: { generated_at: string; source: string };
   metrics: Metric[];
-  daily: { d: string; actual: number; model: number; zone_game: number; persistence: number }[];
+  daily: { d: string; actual: number; model: number; zone_game: number; persistence: number; weekday: number }[];
+  weekday: {
+    mae_machine_day_weekday: number; mae_machine_period_weekday: number; mae_machine_day_model: number; mae_machine_period_model: number;
+    day_diff_model_minus_weekday: number; day_diff_lo: number; day_diff_hi: number;
+    period_diff_model_minus_weekday: number; period_diff_lo: number; period_diff_hi: number; mlflow_run_id: string | null; weekday_factors: string;
+  };
   moves: { machine_id: string; move_date: string; from_zone: string; to_zone: string; actual_before: number; actual_after: number; actual_change: number; predicted_change: number }[];
 };
 

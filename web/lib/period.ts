@@ -26,6 +26,8 @@ function one(v: string | string[] | undefined) {
 
 function clampDate(v: string | undefined, fallback: string) {
   if (!v || !DATE.test(v)) return fallback;
+  const t = new Date(v + "T00:00:00Z");
+  if (Number.isNaN(t.getTime()) || t.toISOString().slice(0, 10) !== v) return fallback; // e.g. 2025-02-30
   if (v < WINDOW.from) return WINDOW.from;
   if (v > WINDOW.to) return WINDOW.to;
   return v;
@@ -58,4 +60,18 @@ export function periodLabel(f: Pick<Filters, "from" | "to">) {
 
 export function daysInPeriod(f: Pick<Filters, "from" | "to">) {
   return Math.round((Date.parse(f.to) - Date.parse(f.from)) / 86400000) + 1;
+}
+
+/** Keep only a zone/bank that exist (and a bank that sits in the chosen zone); say what was ignored. */
+export function checkScope(f: Filters, zones: { id: string; name?: string }[], banks: { id: string; zoneId: string }[] = []) {
+  const notes: string[] = [];
+  let zone = f.zone, bank = f.bank;
+  if (zone && !zones.some((z) => z.id === zone)) { notes.push(`There is no zone "${zone}", so all zones are shown.`); zone = undefined; }
+  if (bank) {
+    const b = banks.find((x) => x.id === bank);
+    if (!banks.length) bank = undefined;
+    else if (!b) { notes.push(`There is no bank "${bank}", so all banks are shown.`); bank = undefined; }
+    else if (zone && b.zoneId !== zone) { notes.push(`Bank ${bank} isn't in the chosen zone, so all of the zone's banks are shown.`); bank = undefined; }
+  }
+  return { ...f, zone, bank, notes };
 }

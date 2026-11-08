@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at": "2026-11-07T22:57:14",
+  "generated_at": "2026-11-08T03:06:43",
   "source": "royale/budget.py from the gold tables; written to royale.gold.budget_actions / budget_portfolios",
   "budget": 100000,
   "window": "July 1-30, 2025",
@@ -538,6 +538,18 @@
    "net_high": 149331.0,
    "rank_mid": 1,
    "rank_low": 79
+  }
+ ],
+ "safest": [
+  {
+   "actions": "A-PROMO",
+   "types": 1,
+   "cost": 15000.0,
+   "net_low": 7084.0,
+   "net_mid": 12809.0,
+   "net_high": 62847.0,
+   "rank_mid": 48,
+   "rank_low": 1
   }
  ],
  "n_portfolios": 353

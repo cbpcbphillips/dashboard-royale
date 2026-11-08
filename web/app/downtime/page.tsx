@@ -2,7 +2,7 @@ import { cacheLife } from "next/cache";
 import { Suspense } from "react";
 import { Ev } from "@/components/Ev";
 import { FilterBar } from "@/components/FilterBar";
-import { parseFilters, periodLabel } from "@/lib/period";
+import { checkScope, parseFilters, periodLabel } from "@/lib/period";
 import { Q3_BANKS, Q3_META, Q3_ZONES, computeQ3, q3Sentence } from "@/lib/q3";
 
 export const metadata = { title: "Downtime & repairs · The Gilded Ace" };
@@ -47,7 +47,7 @@ export default function Q3Page(props: PageProps<"/downtime">) {
 }
 
 async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime">["searchParams"] }) {
-  const f = parseFilters(await searchParams);
+  const f = checkScope(parseFilters(await searchParams), Q3_ZONES.map((z) => ({ id: z.zone_id })), Q3_BANKS.map((b) => ({ id: b.bank_id, zoneId: b.zone_id })));
   const r = await q3For(f.from, f.to, f.zone, f.bank);
   const label = periodLabel(f);
   const maxMonth = Math.max(...r.months.map((m) => m.lostTheo), 1);
@@ -60,6 +60,7 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
         banks={Q3_BANKS.map((b) => ({ id: b.bank_id, zoneId: b.zone_id })).sort((a, b) => a.id.localeCompare(b.id, "en", { numeric: true }))}
         note={`Data exported from Databricks · ${label}`}
       />
+      {f.notes.map((n) => <div key={n} className="notice" role="status">{n}</div>)}
       <p className="answer">{q3Sentence(r)} <Ev id="C12" /></p>
 
       <div className="kpis">

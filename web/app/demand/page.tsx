@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { DemandChart } from "@/components/DemandChart";
 import { Ev } from "@/components/Ev";
 import { FilterBar } from "@/components/FilterBar";
-import { isFullWindow, parseFilters, periodLabel } from "@/lib/period";
+import { checkScope, isFullWindow, parseFilters, periodLabel } from "@/lib/period";
 import { Q2_META, Q2_ZONES, computeQ2, q2Sentence } from "@/lib/q2";
 
 export const metadata = { title: "Floor demand · The Gilded Ace" };
@@ -16,7 +16,7 @@ async function q2For(from: string, to: string, zone?: string) {
 
 const usd = (x: number) => `$${Math.round(x).toLocaleString("en-US")}`;
 const pct = (x: number, d = 0) => `${(x * 100).toFixed(d)}%`;
-const signed = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(0)}%`;
+const signed = (x: number) => (Math.round(x * 100) === 0 ? "0%" : `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(0)}%`);
 const fmtDay = (d: string) => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
 export default function Q2Page(props: PageProps<"/demand">) {
@@ -33,7 +33,7 @@ export default function Q2Page(props: PageProps<"/demand">) {
 }
 
 async function Q2Content({ searchParams }: { searchParams: PageProps<"/demand">["searchParams"] }) {
-  const f = parseFilters(await searchParams);
+  const f = checkScope(parseFilters(await searchParams), Q2_ZONES.map((z) => ({ id: z.zone_id })));
   const r = await q2For(f.from, f.to, f.zone);
   const label = periodLabel(f);
   const bands = [
@@ -48,6 +48,7 @@ async function Q2Content({ searchParams }: { searchParams: PageProps<"/demand">[
   return (
     <>
       <FilterBar from={f.from} to={f.to} zone={f.zone} zones={Q2_ZONES.map((z) => ({ id: z.zone_id, name: z.name }))} banks={[]} note={`Data exported from Databricks · ${label}`} />
+      {f.notes.map((n) => <div key={n} className="notice" role="status">{n}</div>)}
       <p className="answer">{q2Sentence(r, isFullWindow(f))} <Ev id="C10" /></p>
 
       <div className="kpis">
@@ -62,7 +63,7 @@ async function Q2Content({ searchParams }: { searchParams: PageProps<"/demand">[
           Dark line: 7-day average. <span className="swatch gold" /> event days · <span className="swatch grey" /> Back Forty walkway closed. Hover for the day.{" "}
           Across the whole half-year, the floor got about 5% quieter after April (May–June), which no input known on Apr 30 explains. <Ev id="C14" />
         </p>
-        <DemandChart points={r.days} bands={bands} />
+        <DemandChart points={r.days} bands={bands} summary={`Coin-in per day for ${r.scopeName}, ${label}: ${usd(r.coinPerDay)} a day on average. Event days and the Back Forty walkway closure are shaded; weekends run ${Number.isFinite(r.weekendLift) ? signed(r.weekendLift) : "n/a"} vs weekdays.`} />
       </section>
 
       <div className="two-col">

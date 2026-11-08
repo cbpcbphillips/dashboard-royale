@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 export const PAGES = [
   { href: "/", label: "Summary" },
@@ -14,15 +15,34 @@ export const PAGES = [
   { href: "/checks", label: "Evidence" },
 ] as const;
 
-export function SiteNav() {
+function Links({ query }: { query: string }) {
   const path = usePathname();
   return (
     <nav className="nav" aria-label="Pages">
       {PAGES.map((p) => (
-        <Link key={p.href} href={p.href} aria-current={path === p.href ? "page" : undefined}>
+        <Link key={p.href} href={`${p.href}${query}`} aria-current={path === p.href ? "page" : undefined}>
           {p.label}
         </Link>
       ))}
     </nav>
+  );
+}
+
+/** Carries the chosen period (from/to) to every tab, so a judge who changes the period keeps it while moving around. */
+function WithPeriod() {
+  const params = useSearchParams();
+  const q = new URLSearchParams();
+  for (const k of ["from", "to"]) {
+    const v = params.get(k);
+    if (v) q.set(k, v);
+  }
+  return <Links query={q.size ? `?${q}` : ""} />;
+}
+
+export function SiteNav() {
+  return (
+    <Suspense fallback={<Links query="" />}>
+      <WithPeriod />
+    </Suspense>
   );
 }

@@ -369,3 +369,41 @@ table.basics td.num { text-align: right; font-variant-numeric: tabular-nums; whi
 .user-chip { padding: 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--ink2); max-width: 16ch; overflow: hidden; text-overflow: ellipsis; }
 .user-chip.demo { background: #fdf3d8; color: #7a5a12; }
 .link-btn { background: none; border: none; padding: 0; color: var(--brand); font: inherit; cursor: pointer; text-decoration: underline; }
+
+/* ---------- Summary: the manager's list ---------- */
+.mgr-table td:last-child { min-width: 260px; }
+.cause { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 1px 7px; border-radius: 999px; margin-right: 6px; border: 1px solid currentColor; }
+.cause-leak { color: #b42318; }
+.cause-location { color: #2a5fa8; }
+.cause-exposure { color: #6250d6; }
+.cause-weak-unit { color: #a15c07; }
+.cause-luck { color: var(--muted); }
+
+.how { display: block; margin-top: 4px; font-size: 0.78rem; font-weight: 400; color: var(--muted); line-height: 1.35; }
+
+/* ---------- Machines: luck vs play scatter ---------- */
+.scatter svg { width: 100%; height: auto; display: block; }
+.scatter-legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.sc-axis { font: 10px var(--body-font); fill: var(--muted); }
+.sc-title { font: 600 11px var(--body-font); fill: var(--ink2); }
+.sc-note { font: 10px var(--body-font); fill: var(--muted); font-style: italic; }
+.sc-corner { font: 600 10px var(--body-font); fill: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.scatter-tip { font-size: 0.85rem; color: var(--ink2); margin: 6px 0 0; min-height: 1.4em; }
+
+/* ---------- Evidence: pipeline + data checks ---------- */
+.pipeline { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 14px 10px; grid-template-columns: 1fr; }
+@media (min-width: 700px) { .pipeline { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1400px) { .pipeline { grid-template-columns: repeat(6, 1fr); } }
+h2[id], h3[id] { scroll-margin-top: 110px; }
+.pipe-step { position: relative; display: flex; flex-direction: column; gap: 3px; padding: 12px 12px 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--page); font-size: 0.85rem; }
+.pipe-step b { font-size: 0.95rem; color: var(--ink); }
+.pipe-n { position: absolute; top: -9px; left: 10px; width: 20px; height: 20px; border-radius: 50%; background: var(--brand); color: var(--brand-ink); font: 600 0.72rem/20px var(--body-font); text-align: center; }
+.pipe-where { font-size: 0.75rem; color: var(--accent); font-weight: 600; letter-spacing: .02em; }
+.pipe-body { color: var(--ink2); line-height: 1.4; }
+.dq-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 10px 22px; margin: 8px 0 0; }
+.dq-list dt { font-weight: 600; font-size: 0.9rem; color: var(--ink); }
+.dq-list dt span { color: #1b7f4b; margin-right: 4px; }
+.dq-list dd { margin: 2px 0 0; font-size: 0.85rem; color: var(--ink2); line-height: 1.4; }
+.chart-data { margin-top: 8px; font-size: 0.85rem; }
+.chart-data summary { cursor: pointer; color: var(--brand); font-weight: 600; }
+.chart-data .table-scroll { max-height: 320px; overflow-y: auto; margin-top: 6px; }

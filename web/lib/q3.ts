@@ -26,6 +26,7 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 
 export type Q3Result = {
   scopeName: string;
+  periodDays: number;
   lostTheo: number;
   lostCoin: number;
   downHours: number;
@@ -91,6 +92,7 @@ export function computeQ3(from: string, to: string, zone?: string, bank?: string
   const zoneName = zone ? data.zones.find((z) => z.zone_id === zone)?.name ?? zone : undefined;
   return {
     scopeName: bank ? `bank ${bank}` : zoneName ?? "the floor",
+    periodDays: Math.round((Date.parse(to) - Date.parse(from)) / 86400000) + 1,
     lostTheo, lostCoin, downHours, faults,
     avgWait: faults ? wait / faults : NaN,
     months: MONTHS.filter((m) => mon.has(m)).map((m) => ({ month: m, ...mon.get(m)! })),
@@ -115,8 +117,8 @@ export function q3Sentence(r: Q3Result): string {
   }
   const [short, full] = r.staffing;
   if (short.shifts >= 5 && Number.isFinite(short.avgWait) && Number.isFinite(full.avgWait))
-    parts.push(`repairs waited ${short.avgWait.toFixed(1)} h on shifts short of slot techs vs ${full.avgWait.toFixed(1)} h when fully staffed`);
-  if (r.makers.length >= 2) {
+    parts.push(`${r.scopeName === "the floor" ? "" : "floor-wide, "}repairs waited ${short.avgWait.toFixed(1)} h on shifts short of slot techs vs ${full.avgWait.toFixed(1)} h when fully staffed`);
+  if (r.makers.length >= 2 && r.periodDays >= 28) { // a maker ratio from a few days of faults is noise
     const [top, ...rest] = r.makers;
     const others = rest.reduce((a, m) => a + m.faultsPer1000, 0) / rest.length;
     if (others > 0 && top.faultsPer1000 / others > 1.5) parts.push(`${top.maker} machines break down ${(top.faultsPer1000 / others).toFixed(1)}× as often as the other makers`);

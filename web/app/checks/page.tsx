@@ -1,9 +1,13 @@
 import { Ev, MiniMd } from "@/components/Ev";
+import { BuiltOn, DataChecks } from "@/components/BuiltOn";
 import { MultiLine } from "@/components/MultiLine";
 import { CLAIMS } from "@/lib/claims";
 import { MODEL } from "@/lib/model";
 
 export const metadata = { title: "Evidence · The Gilded Ace" };
+
+// From docs/evidence/parity_*.md (royale/parity_check.py): DuckDB vs Databricks, column by column.
+const PARITY = "Every table was rebuilt on both engines and compared column by column (counts, sums, distinct values, date ranges): bronze 31 of 31, silver 1 of 1, gold 28 of 28 match.";
 
 const usd2 = (x: number) => `$${x.toFixed(2)}`;
 const ZONE: Record<string, string> = { "Z-B40": "Back Forty", "Z-ENT": "Main Entrance", "Z-PIT": "Center Pit" };
@@ -14,6 +18,7 @@ export default function Page() {
   const model = m.pred_model, persist = m.pred_persistence, zg = m.pred_zone_game;
   const rows = [model, m.pred_glm_only, zg, persist].filter(Boolean);
   const dayGain = 1 - model.mae_machine_day / Math.min(zg.mae_machine_day, persist.mae_machine_day);
+  const wk = MODEL.weekday;
   const leak = Math.max(...MODEL.metrics.map((x) => x.leakage_test_max_abs_change));
   const move = MODEL.moves.find((x) => x.from_zone !== x.to_zone);
 
@@ -30,13 +35,14 @@ export default function Page() {
         <h2 className="section" id="model-title">The model test: learned on January–April, judged on May–June <Ev id="C14" /></h2>
         <p className="cap">
           The model predicts each machine&apos;s expected earnings per open hour from its spot, game, weekday, holidays and pre-announced events. It was fitted on
-          January–April only and then asked to predict every machine-day in May–June, with no May–June data used. It is compared with two simple guesses a manager
-          might use.
+          January–April only and then asked to predict every machine-day in May–June, with no May–June data used. It is compared with three simple guesses a manager
+          might use, including one that already knows the weekly rhythm.
         </p>
         <p className="answer">
-          Day by day, the model misses by {usd2(model.mae_machine_day)} per open hour vs {usd2(persist.mae_machine_day)} for &quot;same as before&quot;: {Math.round(dayGain * 100)}% closer, because it
-          knows weekdays, holidays and events. Over a whole two months it ties &quot;same as before&quot; ({usd2(model.mae_machine_period)} vs {usd2(persist.mae_machine_period)}). Machines
-          earned {usd2(model.mean_actual_rate)} per open hour on average.
+          Day by day, the model misses by {usd2(model.mae_machine_day)} per open hour vs {usd2(persist.mae_machine_day)} for a flat &quot;same as before&quot;: {Math.round(dayGain * 100)}% closer. Most of
+          that is the weekly rhythm: a guess that knows weekdays (&quot;same as before, by weekday&quot;) misses by {usd2(wk.mae_machine_day_weekday)}. The model still beats it, by a small but
+          real margin ({usd2(-wk.day_diff_model_minus_weekday)} per machine-day; 95% range {usd2(-wk.day_diff_hi)} to {usd2(-wk.day_diff_lo)}), from holidays, events and the spot. Over a whole
+          two months it ties the flat guess ({usd2(model.mae_machine_period)} vs {usd2(persist.mae_machine_period)}). Machines earned {usd2(model.mean_actual_rate)} per open hour on average.
         </p>
         <div className="table-scroll">
           <table className="q2-table">
@@ -57,6 +63,12 @@ export default function Page() {
                   <td className="num">{usd2(x.mae_moved_or_new)}</td>
                 </tr>
               ))}
+              <tr>
+                <th scope="row">Simple guess: same as its own Jan–Apr, by weekday</th>
+                <td className="num">{usd2(wk.mae_machine_day_weekday)}</td>
+                <td className="num">{usd2(wk.mae_machine_period_weekday)}</td>
+                <td className="num">—</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -66,9 +78,11 @@ export default function Page() {
         <MultiLine
           data={MODEL.daily}
           fmt="usd2"
+          summary={`Whole-floor expected earnings per open hour, May 1 – June 30: actual vs the model and three simple guesses. The model and the weekday guess follow the weekly ups and downs; the flat guesses do not. Typical daily miss: model ${usd2(model.mae_machine_day)}, weekday guess ${usd2(wk.mae_machine_day_weekday)}, flat guess ${usd2(persist.mae_machine_day)}.`}
           series={[
             { key: "actual", label: "Actual", color: "#3a1021", width: 2.5 },
             { key: "model", label: "Model", color: "#6d1a36", width: 2, dash: "5 3" },
+            { key: "weekday", label: "Same as Jan–Apr, by weekday", color: "#2a78d6", width: 1.5, dash: "2 3" },
             { key: "persistence", label: "Same as Jan–Apr", color: "#b08d57", width: 1.5 },
             { key: "zone_game", label: "Zone × game average", color: "#99808a", width: 1.5 },
           ]}
@@ -85,7 +99,7 @@ export default function Page() {
             with a separate leave-one-out comparison model: each machine against the others on the same days, checked month by month and recomputed three ways{" "}
             <Ev id="C17" /> <Ev id="C18" />.
           </li>
-          <li><b>Every method over-predicts by about $1 per open hour.</b> The floor got about 5% quieter after April, which nothing known on April 30 could foresee <Ev id="C17" />. The model follows the weekly rhythm; the simple guesses can&apos;t.</li>
+          <li><b>Every method over-predicts by about $1 per open hour.</b> The floor got about 5% quieter after April, which nothing known on April 30 could foresee <Ev id="C17" />. The model and the weekday guess follow the weekly rhythm; the flat guesses can&apos;t.</li>
           <li><b>No peeking.</b> Scrambling every May–June outcome changed no prediction (largest change {leak.toFixed(1)}), so nothing from the test months leaked into the model. Its settings were chosen on an inner January–March → April split.</li>
           {move && (
             <li>
@@ -94,10 +108,13 @@ export default function Page() {
             </li>
           )}
           <li><b>The machine-ranking model is checked twice.</b> The Machines page&apos;s leave-one-out prediction is recomputed in plain SQL on DuckDB and Databricks and in a Python reference, and all give the same top 10 <Ev id="C18" />; short windows no longer raise false alarms <Ev id="C20" />.</li>
-          <li><b>Honest limit.</b> Over a whole two months the model ties the simplest guess; it wins on day-to-day planning (staffing, promotion timing). On the 3 moved or new machines, &quot;same as before&quot; did slightly better (n = 3).</li>
+          <li><b>Honest limit.</b> Over a whole two months the model ties the simplest guess, and day by day its edge over a weekday-aware guess is small (about 2%); what it adds is holidays, events and, above all, separating a machine from its spot. On the 3 moved or new machines, &quot;same as before&quot; did slightly better (n = 3).</li>
         </ul>
-        <p className="ev">Runs are logged in MLflow on Databricks (experiment <code>royale-tpah</code>; model run <code>{model.mlflow_run_id}</code>) and the model is registered in Unity Catalog as <code>royale.gold.tpah_glm</code>. Source: {MODEL.meta.source}.</p>
+        <p className="ev">Runs are logged in MLflow on Databricks (experiment <code>royale-tpah</code>; model run <code>{model.mlflow_run_id}</code>; weekday guess <code>{wk.mlflow_run_id}</code>) and the model is registered in Unity Catalog as <code>royale.gold.tpah_glm</code>. Source: {MODEL.meta.source}.</p>
       </section>
+
+      <BuiltOn parity={PARITY} />
+      <DataChecks />
 
       <section className="block" aria-labelledby="ev-title">
         <h2 className="section" id="ev-title">Every claim ({CLAIMS.length})</h2>

@@ -1,4 +1,4 @@
--- C07: Comps got about 2x cheaper in points from the week of Apr 28; comp cost per $ theo rose
+-- C07: Comps got about 2x cheaper in points from the week of Apr 28; comp cost per dollar of theo rose
 -- ~12% and the rise survives holding the tier mix fixed; visits per player barely moved.
 SELECT week_start, redemptions, ROUND(points_per_comp_face_usd, 2) AS points_per_comp_usd,
        ROUND(comp_cost_usd, 0) AS comp_cost_usd, ROUND(comp_reinvestment, 4) AS comp_cost_per_carded_theo

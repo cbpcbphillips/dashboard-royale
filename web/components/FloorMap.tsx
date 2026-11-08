@@ -70,7 +70,7 @@ function colour(v: number, max: number, cb: boolean) {
 }
 
 /** Floor plan: a dot per slot at its real coordinates, coloured by the chosen measure; click selects a machine. */
-export function FloorMap({ slots, machines, zones, selected }: { slots: MapSlot[]; machines: MapMachine[]; zones: { id: string; name: string; x: number; y: number }[]; selected?: string }) {
+export function FloorMap({ slots, machines, zones, selected, scope }: { slots: MapSlot[]; machines: MapMachine[]; zones: { id: string; name: string; x: number; y: number }[]; selected?: string; scope?: { zone?: string; bank?: string } }) {
   const router = useRouter();
   const path = usePathname();
   const params = useSearchParams();
@@ -154,6 +154,7 @@ export function FloorMap({ slots, machines, zones, selected }: { slots: MapSlot[
                 cy={s.y}
                 r={isSel ? 1.75 : 1.3}
                 fill={mm ? colour(v, max, cb) : "none"}
+                opacity={(scope?.bank && s.bank !== scope.bank) || (scope?.zone && s.zone !== scope.zone) ? 0.18 : 1}
                 stroke={isSel ? "var(--ink)" : mm ? "rgba(58,16,33,.35)" : "var(--muted)"}
                 strokeWidth={isSel ? 0.5 : 0.18}
                 tabIndex={mm ? 0 : -1}

@@ -76,7 +76,7 @@ async function Q4Content({ searchParams }: { searchParams: PageProps<"/players">
             <text x={W - 8} y={H - 8} className="lorenz-axis" textAnchor="end">100% of players</text>
             <text x={P + 4} y={14} className="lorenz-axis">100% of expected earnings</text>
           </svg>
-          <p className="ev">Dashed line = everyone plays the same amount. The further the curve bows up, the more play comes from a few players. For protective use only (e.g. limits, check-ins), never to target heavy losers.</p>
+          <p className="ev">Dashed line = everyone plays the same amount. The further the curve bows up, the more play comes from a few players. Over longer periods play looks more concentrated, because one-time visitors pile up while regulars keep playing (six months: top 10% = 64%; a single month: about 40%). For protective use only (e.g. limits, check-ins), never to target heavy losers.</p>
         </section>
 
         <section className="card" aria-labelledby="luck-title">

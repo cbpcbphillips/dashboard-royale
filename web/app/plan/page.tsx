@@ -12,6 +12,19 @@ const MEASURE: Record<string, string> = {
   "A-WAYFINDING": "Back Forty vs the rest of the floor, 30 days before vs after: time in use, coin-in per hour and door-counter traffic (the walkway-closure method).",
 };
 
+const pctOf = (x: number) => `${Math.round(x * 100)}%`;
+/** Break-even: the share of our best-estimate gain the action must deliver to pay for itself, in the action's own terms. */
+function breakEven(a: { action: string; cost: number; benefit_mid: number }) {
+  if (!(a.benefit_mid > 0)) return "Never pays back in July";
+  const r = a.cost / a.benefit_mid;
+  const plain =
+    a.action === "A-PROMO" ? `a lift of about ${(7.5 * r).toFixed(1)}% on promotion days (Locals Week did +7.5%)`
+    : a.action === "A-WAYFINDING" ? `about ${(5 * r).toFixed(1)}% more play in the zone`
+    : a.action === "A-INSPECT" ? `a ${pctOf(r)} chance that a fault is found and fixed`
+    : `${pctOf(r)} of the expected gain`;
+  return `${pctOf(r)} of the best estimate: ${plain}`;
+}
+
 const WORDS = ["", "one", "two", "three"];
 /** One funded action as plain words, e.g. "two promotion weekends (Jul 18–20 and Jul 25–27, $30,000)". */
 function phrase(a: { action: string; qty: number; target: string; cost: number; name: string }) {
@@ -32,7 +45,7 @@ export default function Q6Page() {
   const isChosen = (a: { action: string; qty: number }) => chosenParts.some((c) => c.action === a.action && c.qty === a.qty);
   const actions = [...Q6.actions].sort((a, b) => b.net_mid - a.net_mid);
   const picked = chosenParts.map((c) => Q6.actions.find((a) => a.action === c.action && a.qty === c.qty)!).filter(Boolean);
-  const best = Q6.portfolios[0];
+  const safe = Q6.safest[0];
   const max = Math.max(...actions.map((a) => Math.abs(a.net_high)), 1);
   const x = (v: number) => 50 + (v / max) * 50;
 
@@ -67,7 +80,7 @@ export default function Q6Page() {
         <h2 className="section" id="funded-title">What we fund, and how we&apos;ll know it worked</h2>
         <div className="table-scroll">
           <table className="q2-table">
-            <thead><tr><th scope="col">Action</th><th scope="col" className="num">Cost</th><th scope="col" className="num">Expected gain</th><th scope="col" className="num">Range</th><th scope="col">How we&apos;ll measure it</th></tr></thead>
+            <thead><tr><th scope="col">Action</th><th scope="col" className="num">Cost</th><th scope="col" className="num">Expected gain</th><th scope="col" className="num">Range</th><th scope="col">Pays for itself at</th><th scope="col">How we&apos;ll measure it</th></tr></thead>
             <tbody>
               {picked.map((a) => (
                 <tr key={a.action}>
@@ -75,7 +88,8 @@ export default function Q6Page() {
                   <td className="num">{usd(a.cost)}</td>
                   <td className="num">{usd(a.benefit_mid)}</td>
                   <td className="num">{usd(a.benefit_low)} – {usd(a.benefit_high)}</td>
-                  <td className="wrap-cell">{MEASURE[a.action] ?? "—"}</td>
+                  <td className="wrap-cell">{breakEven(a)}</td>
+                  <td className="wrap-cell">{MEASURE[a.action] ?? "—"}<span className="how">How we valued it: {a.how}.</span></td>
                 </tr>
               ))}
             </tbody>
@@ -85,14 +99,14 @@ export default function Q6Page() {
 
       <section className="card block" aria-labelledby="all-title">
         <h2 className="section" id="all-title">Every action, costed for July <Ev id="C21" /></h2>
-        <p className="cap">Net = expected gain − cost, for July 1–30. Bar = best estimate; thin line = low to high. Grey area = loses money. Hover a row for how the gain was valued.</p>
+        <p className="cap">Net = expected gain − cost, for July 1–30. Bar = best estimate; thin line = low to high. Grey area = loses money. Under each action: how its gain was valued.</p>
         <div className="table-scroll">
           <table className="q2-table">
             <thead><tr><th scope="col">Action</th><th scope="col" className="num">Cost</th><th scope="col" className="num">Days of benefit</th><th scope="col" className="num">Net (best estimate)</th><th scope="col" className="bar-col">Net: loss ← 0 → gain</th><th scope="col">Evidence</th></tr></thead>
             <tbody>
               {actions.map((a) => (
-                <tr key={a.action + a.qty} title={a.how} className={isChosen(a) ? "sel" : ""}>
-                  <th scope="row">{short(a.action)}{a.qty > 1 ? ` ×${a.qty}` : ""}<span className="hint block-hint">{a.target}</span></th>
+                <tr key={a.action + a.qty} className={isChosen(a) ? "sel" : ""}>
+                  <th scope="row">{short(a.action)}{a.qty > 1 ? ` ×${a.qty}` : ""}<span className="hint block-hint">{a.target}</span><span className="how">{a.how}</span></th>
                   <td className="num">{usd(a.cost)}</td>
                   <td className="num">{a.benefit_days}</td>
                   <td className="num">{usd(a.net_mid)}</td>
@@ -134,8 +148,10 @@ export default function Q6Page() {
           </table>
         </div>
         <p className="ev">
-          The top mix by best estimate is {best.actions.split(" + ").map(short).join(" + ")} ({usd(best.net_mid)}); it can also lose {usd(-best.net_low)} in the worst case. A second promotion weekend
-          is untested, so we value it at 50–100% of the first; that is why its worst case is below zero.
+          <b>The tradeoff we chose.</b> The safest mix, {safe.actions === "A-PROMO" ? "one promotion weekend" : safe.actions.split(" + ").map(short).join(" + ")} alone, can&apos;t lose money (worst case {usd(safe.net_low)}) but expects only{" "}
+          {usd(safe.net_mid)}. Ours expects {usd(chosen.net_mid)}, {(chosen.net_mid / safe.net_mid).toFixed(1)}× as much, and its worst case is a loss of {usd(-chosen.net_low)}: that happens
+          only if every action lands at its low end at once (no fault found, signage adds nothing, both promotions at their weakest). We accept that small downside for the larger
+          expected gain; the second promotion weekend, untested, is the main source of the risk.
         </p>
       </section>
 

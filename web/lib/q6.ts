@@ -14,7 +14,7 @@ export type Action = {
 export type Portfolio = { actions: string; types: number; cost: number; net_low: number; net_mid: number; net_high: number; rank_mid: number; rank_low: number };
 type Q6Data = {
   meta: { generated_at: string; source: string; budget: number; window: string; chosen: string };
-  actions: Action[]; portfolios: Portfolio[]; chosen: Portfolio[]; n_portfolios: number;
+  actions: Action[]; portfolios: Portfolio[]; chosen: Portfolio[]; safest: Portfolio[]; n_portfolios: number;
 };
 
 export const Q6: Q6Data = JSON.parse(readFileSync(path.join(process.cwd(), "data", "q6.json"), "utf8"));

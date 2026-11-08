@@ -6,6 +6,7 @@ import { computeQ2 } from "@/lib/q2";
 import { computeQ3 } from "@/lib/q3";
 import { computeQ4 } from "@/lib/q4";
 import { Q5_CHANGE } from "@/lib/q5";
+import { MANAGER } from "@/lib/manager";
 import { Q6 } from "@/lib/q6";
 
 export const metadata = { title: "Summary · The Gilded Ace" };
@@ -13,6 +14,7 @@ export const metadata = { title: "Summary · The Gilded Ace" };
 const usd = (x: number) => `$${Math.round(x).toLocaleString("en-US")}`;
 const k = (x: number) => (Math.abs(x) >= 1e6 ? `$${(x / 1e6).toFixed(2)}M` : `$${Math.round(x / 1000).toLocaleString("en-US")}k`);
 const pct = (x: number, d = 0) => `${(x * 100).toFixed(d)}%`;
+const md = (d: string) => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
 /** Executive summary: one finding per area, every number computed from the same data as its page. */
 export default function Summary() {
@@ -21,6 +23,23 @@ export default function Summary() {
   const unpopular = q1.machines.filter((m) => m.labels.some((l) => l.key === "unpopular"));
   const paying = q1.machines.filter((m) => m.labels.some((l) => l.key === "paying"));
   const quiet = q1.machines.filter((m) => m.labels.some((l) => l.key === "quiet"));
+  // the manager's 10 lowest earners, re-examined with our full-period results
+  const byId = new Map(q1.machines.map((m) => [m.id, m]));
+  const SHORT_DAYS = 120;
+  const mgr = MANAGER.map((x) => {
+    const m = byId.get(x.machine_id);
+    const has = (k: string) => !!m?.labels.some((l) => l.key === k);
+    const cause = has("paying") ? "Leak" : x.days_on_floor < SHORT_DAYS ? "Exposure" : has("unpopular") ? "Weak unit" : has("quiet") ? "Location" : "Luck";
+    const why =
+      cause === "Leak" ? "Pays out far more than its game settings allow: inspect it"
+      : cause === "Exposure" ? `Only ${x.days_on_floor} days on the floor${x.install_date && x.install_date > from ? ` (installed ${md(x.install_date)})` : x.retire_date ? ` (retired ${md(x.retire_date)})` : ""}${has("quiet") ? ", in a quiet spot" : ""}`
+      : cause === "Weak unit" ? "Gets less play than identical machines nearby"
+      : cause === "Location" ? `Its spot (${x.zone_name}, bank ${x.bank_id}) is quiet; the machine itself is normal`
+      : "Nothing proven; ordinary luck";
+    return { ...x, rank: m?.rank, cause, why };
+  });
+  const causeCount = (c: string) => mgr.filter((x) => x.cause === c).length;
+  const inOurTop10 = mgr.filter((x) => x.rank && x.rank <= 10).length;
   // how the headline holds up on a shorter window (the model-test months)
   const q1Late = computeQ1("2025-05-01", "2025-06-30");
   const lateUnpopular = q1Late.machines.filter((m) => m.labels.some((l) => l.key === "unpopular")).length;
@@ -87,6 +106,40 @@ export default function Summary() {
         The machines on the manager&apos;s bottom-10 list mostly sit in a quiet corner of the floor; only one of them (M-1158) shows a possible fault. Here is what drives earnings, and what
         we&apos;d do with $100,000 in July. Every number links to its evidence, and <a href="/checks#model-title">how we tested the model</a> is on the Evidence tab.
       </p>
+      <section className="card block manager-card" aria-labelledby="mgr-title">
+        <h2 className="section" id="mgr-title">The manager&apos;s list, re-examined: luck, location, or a leak? <Ev id="C01" /> <Ev id="C19" /></h2>
+        <p className="cap">
+          The general manager planned to replace the 10 machines that earned the least. Only {inOurTop10} of them {inOurTop10 === 1 ? "is" : "are"} in our top 10
+          underperformers once spot, time on the floor and luck are accounted for. Location: {causeCount("Location")} · short time on the floor: {causeCount("Exposure")} ·
+          leak: {causeCount("Leak")} · weak unit: {causeCount("Weak unit")} · luck alone: {causeCount("Luck")}.
+        </p>
+        <div className="table-scroll">
+          <table className="q2-table mgr-table">
+            <thead>
+              <tr>
+                <th scope="col" className="num">Manager&apos;s rank</th>
+                <th scope="col">Machine</th>
+                <th scope="col" className="num">Kept (house win)</th>
+                <th scope="col" className="num">Our rank of {q1.machines.length}</th>
+                <th scope="col">What&apos;s really going on</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mgr.map((x) => (
+                <tr key={x.machine_id}>
+                  <td className="num">{x.manager_rank}</td>
+                  <th scope="row"><Link href={`/machines?machine=${x.machine_id}`}>{x.machine_id}</Link><span className="hint block-hint">{x.zone_name}</span></th>
+                  <td className="num">{usd(x.house_win_usd)}</td>
+                  <td className="num">{x.rank ? `#${x.rank}` : "—"}</td>
+                  <td><span className={`cause cause-${x.cause.toLowerCase().replace(" ", "-")}`}>{x.cause}</span> {x.why}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="ev">Replacing all 10 would cost $33,800 (leased) to $220,000 (bought) and fix one machine; the July plan inspects M-1158 and treats Back Forty&apos;s location instead.</p>
+      </section>
+
       <div className="summary-grid">
         {cards.map((c) => (
           <article key={c.href} className="card summary-card">

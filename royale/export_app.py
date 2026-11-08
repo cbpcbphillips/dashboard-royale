@@ -212,6 +212,8 @@ MODEL_QUERIES = {
                 FROM {g}.model_predictions WHERE target = 'tpah' GROUP BY gaming_date ORDER BY gaming_date""",
     "moves": """SELECT machine_id, CAST(move_date AS STRING) AS move_date, from_zone, to_zone, actual_before, actual_after,
                        actual_change, predicted_change FROM {g}.model_move_check ORDER BY move_date""",
+    "weekday": """SELECT * FROM {g}.model_weekday_baseline""",
+    "weekday_daily": """SELECT CAST(gaming_date AS STRING) AS d, weekday FROM {g}.model_weekday_daily ORDER BY gaming_date""",
 }
 
 
@@ -219,16 +221,37 @@ def export_model(source: str) -> None:
     """Model validation for the Evidence tab: frozen forecast (fit Jan-Apr, predict May-Jun) vs baselines (C14, C16)."""
     t = run_queries(source, MODEL_QUERIES)
     t["daily"]["d"] = t["daily"]["d"].astype(str).str[:10]
+    t["weekday_daily"]["d"] = t["weekday_daily"]["d"].astype(str).str[:10]
+    t["daily"] = t["daily"].merge(t["weekday_daily"], on="d", how="left")
     for k in t:
         for c in t[k].columns:
-            if t[k][c].dtype == object and c not in ("d", "machine_id", "move_date", "from_zone", "to_zone", "target", "method", "label", "mlflow_run_id"):
+            if t[k][c].dtype == object and c not in ("d", "machine_id", "move_date", "from_zone", "to_zone", "target", "method", "label", "mlflow_run_id", "baseline", "weekday_factors"):
                 t[k][c] = pd.to_numeric(t[k][c], errors="coerce")
     payload = {"meta": {"generated_at": dt.datetime.now().isoformat(timespec="seconds"),
                         "source": f"{'Databricks Unity Catalog' if source == 'databricks' else 'local DuckDB mirror'}: royale.gold.model_metrics, model_predictions, model_move_check; MLflow experiment royale-tpah"},
-               "metrics": clean(t["metrics"]), "daily": clean(t["daily"]), "moves": clean(t["moves"])}
+               "metrics": clean(t["metrics"]), "daily": clean(t["daily"]), "moves": clean(t["moves"]), "weekday": clean(t["weekday"])[0]}
     out = OUT.parent / "model.json"
     out.write_text(json.dumps(payload, separators=(",", ":"), allow_nan=False, default=str))
     print(f"wrote {out} ({out.stat().st_size / 1e3:.0f} kB) from {source}")
+
+
+MANAGER_QUERY = {"m": """SELECT manager_rank, machine_id, zone_name, bank_id, days_on_floor,
+                                house_win_usd, theo_usd, luck_z,
+                                CAST(install_date AS STRING) AS install_date, CAST(retire_date AS STRING) AS retire_date
+                         FROM {g}.machine_metrics_full WHERE in_manager_bottom10 ORDER BY manager_rank"""}
+
+
+def export_manager(source: str) -> None:
+    """The general manager's list: the 10 machines with the lowest total house win, Jan 1 - Jun 30 (claim C01)."""
+    m = run_queries(source, MANAGER_QUERY)["m"]
+    for c in ("house_win_usd", "theo_usd", "luck_z"):
+        m[c] = m[c].astype(float)
+    payload = {"meta": {"generated_at": dt.datetime.now().isoformat(timespec="seconds"),
+                        "source": f"{'Databricks Unity Catalog' if source == 'databricks' else 'local DuckDB mirror'}: royale.gold.machine_metrics_full (manager_rank)"},
+               "machines": clean(m)}
+    out = OUT.parent / "manager.json"
+    out.write_text(json.dumps(payload, separators=(",", ":"), allow_nan=False, default=str))
+    print(f"wrote {out} from {source}: {len(m)} machines")
 
 
 def clean(df: pd.DataFrame) -> list[dict]:
@@ -239,7 +262,7 @@ def clean(df: pd.DataFrame) -> list[dict]:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", choices=["databricks", "duckdb"], default="databricks")
-    ap.add_argument("--only", choices=["q1", "q2", "q3", "q4", "q5", "model"], help="export just one page's data")
+    ap.add_argument("--only", choices=["q1", "q2", "q3", "q4", "q5", "model", "manager"], help="export just one page's data")
     a = ap.parse_args()
     source = a.source
     if a.only in (None, "q2"):
@@ -252,7 +275,9 @@ def main():
         export_q5(source)
     if a.only in (None, "model"):
         export_model(source)
-    if a.only in ("q2", "q3", "q4", "q5", "model"):
+    if a.only in (None, "manager"):
+        export_manager(source)
+    if a.only in ("q2", "q3", "q4", "q5", "model", "manager"):
         return
     t = fetch(source)
     days = t["days"]

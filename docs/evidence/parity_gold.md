@@ -1,11 +1,13 @@
 # Parity check: `gold` layer, DuckDB (local parquet) vs Databricks (Delta)
 
-Run: 2026-11-07 17:15 local time · Databricks prefix `royale.gold` · command `uv run python -m royale.parity_check --layer gold`
+Run: 2026-11-08 03:15 local time · Databricks prefix `royale.gold` · command `uv run python -m royale.parity_check --layer gold`
 
 Checks per column: non-null count; SUM (numbers); true count (booleans); distinct count (text); min/max (dates, timestamps; Databricks session pinned to UTC).
 
 | Table | Rows | Checks | Result |
 |---|---:|---:|---|
+| budget_actions | 13 | 33 | PASS |
+| budget_portfolios | 353 | 17 | PASS |
 | comp_change | 5 | 38 | PASS |
 | comp_tier_month | 18 | 27 | PASS |
 | comp_week | 27 | 28 | PASS |
@@ -22,12 +24,15 @@ Checks per column: non-null count; SUM (numbers); true count (booleans); distinc
 | model_metrics | 8 | 39 | PASS |
 | model_move_check | 2 | 29 | PASS |
 | model_predictions | 37,576 | 26 | PASS |
+| model_weekday_baseline | 1 | 39 | PASS |
+| model_weekday_daily | 61 | 6 | PASS |
 | move_whatif | 1,398 | 25 | PASS |
 | player_dim | 113,890 | 11 | PASS |
 | player_group_summary | 18 | 31 | PASS |
 | player_month | 148,893 | 47 | PASS |
+| q1_expected_day | 55,092 | 12 | PASS |
 | tech_shift_day | 543 | 20 | PASS |
 | walkway_periods | 6 | 15 | PASS |
 | zone_day | 1,267 | 40 | PASS |
 
-**23 of 23 tables match.**
+**28 of 28 tables match.**

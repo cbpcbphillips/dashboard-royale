@@ -106,8 +106,8 @@ export function computeQ2(from: string, to: string, zone?: string): Q2Result {
   };
 }
 
-const usd = (x: number) => (x >= 1e6 ? `$${(x / 1e6).toFixed(2)}M` : `$${Math.round(x / 1000).toLocaleString("en-US")}k`);
-const pct = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(0)}%`;
+const usd = (x: number) => (x >= 1e6 ? `$${(x / 1e6).toFixed(2)}M` : x >= 1e4 ? `$${Math.round(x / 1000).toLocaleString("en-US")}k` : `$${Math.round(x).toLocaleString("en-US")}`);
+const pct = (x: number) => (Math.round(x * 100) === 0 ? "0%" : `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(0)}%`);
 
 /** Plain answer, generated from the numbers for the chosen period and zone. */
 export function q2Sentence(r: Q2Result, periodIsFull: boolean): string {

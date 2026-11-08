@@ -182,7 +182,9 @@ def main():
     payload = {"meta": {"generated_at": dt.datetime.now().isoformat(timespec="seconds"), "source": "royale/budget.py from the gold tables; written to royale.gold.budget_actions / budget_portfolios",
                         "budget": BUDGET, "window": "July 1-30, 2025", "chosen": chosen},
                "facts": f, "actions": json.loads(a.to_json(orient="records")), "portfolios": json.loads(p.head(25).to_json(orient="records")),
-               "chosen": json.loads(p[p.actions == chosen].to_json(orient="records")), "n_portfolios": len(p)}
+               "chosen": json.loads(p[p.actions == chosen].to_json(orient="records")),
+               "safest": json.loads(p.sort_values(["net_low", "net_mid"], ascending=False).head(1).to_json(orient="records")),
+               "n_portfolios": len(p)}
     out.write_text(json.dumps(payload, indent=1, default=str))
     print("wrote", out)
 

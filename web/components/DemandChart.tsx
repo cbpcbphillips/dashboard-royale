@@ -9,11 +9,12 @@ const k = (v: number) => (v >= 1e6 ? `$${(v / 1e6).toFixed(1)}M` : `$${Math.roun
 const day = (d: string) => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
 /** Daily coin-in with a 7-day average; event days and the walkway closure shaded behind. */
-export function DemandChart({ points, bands }: { points: Point[]; bands: Band[] }) {
+export function DemandChart({ points, bands, summary }: { points: Point[]; bands: Band[]; summary: string }) {
   const inRange = (b: Band) => points.length && b.to >= points[0].date && b.from <= points[points.length - 1].date;
   const clip = (d: string, lo: boolean) => (lo ? (d < points[0].date ? points[0].date : d) : d > points[points.length - 1].date ? points[points.length - 1].date : d);
   return (
-    <div className="chart" style={{ height: "clamp(240px, 32vw, 360px)" }}>
+    <>
+    <div className="chart" style={{ height: "clamp(240px, 32vw, 360px)" }} role="img" aria-label={summary}>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={points} margin={{ top: 8, right: 12, bottom: 0, left: 4 }}>
           <CartesianGrid stroke="var(--grid)" vertical={false} />
@@ -36,5 +37,24 @@ export function DemandChart({ points, bands }: { points: Point[]; bands: Band[] 
         </ComposedChart>
       </ResponsiveContainer>
     </div>
+    <details className="chart-data">
+      <summary>Show the numbers</summary>
+      <div className="table-scroll">
+        <table className="q2-table">
+          <thead><tr><th scope="col">Day</th><th scope="col" className="num">Coin-in</th><th scope="col" className="num">7-day average</th><th scope="col">Events</th></tr></thead>
+          <tbody>
+            {points.map((p) => (
+              <tr key={p.date}>
+                <th scope="row">{day(p.date)}</th>
+                <td className="num">{k(p.coin)}</td>
+                <td className="num">{p.avg7 == null ? "—" : k(p.avg7)}</td>
+                <td>{bands.filter((b) => p.date >= b.from && p.date <= b.to).map((b) => b.label).join(", ")}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+    </>
   );
 }

@@ -7,7 +7,7 @@ import { LabelChip } from "./LabelChip";
 
 export type ListRow = { id: string; rank: number; short: number; labels: { key: LabelKey; text: string; detail: string }[] };
 
-const money = (x: number) => (x >= 0 ? `$${Math.round(x).toLocaleString("en-US")}` : `−$${Math.round(-x).toLocaleString("en-US")}`);
+const money = (x: number) => (x >= 0 ? `$${Math.round(x).toLocaleString("en-US")}` : `$${Math.round(-x).toLocaleString("en-US")} above`);
 
 /** Top underperformers, 10 per page. Clicking a row opens its card (?machine=, D-021/D-074). */
 export function Q1List({ rows, total, page, pageSize, selected }: { rows: ListRow[]; total: number; page: number; pageSize: number; selected?: string }) {

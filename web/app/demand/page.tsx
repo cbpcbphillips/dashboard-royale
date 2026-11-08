@@ -60,7 +60,7 @@ async function Q2Content({ searchParams }: { searchParams: PageProps<"/demand">[
         <h2 className="section" id="daily-title">Coin-in per day: {r.scopeName}</h2>
         <p className="cap">
           Dark line: 7-day average. <span className="swatch gold" /> event days · <span className="swatch grey" /> Back Forty walkway closed. Hover for the day.{" "}
-          The floor got quieter after April, by about 5% (May–June), which no input known on Apr 30 explains. <Ev id="C14" />
+          Across the whole half-year, the floor got about 5% quieter after April (May–June), which no input known on Apr 30 explains. <Ev id="C14" />
         </p>
         <DemandChart points={r.days} bands={bands} />
       </section>

@@ -18,14 +18,14 @@ Filters: period on every tab, with a warning on short windows (D-046); bank on Q
 
 ## To do (in order)
 Working rule (2026-11-08): get every question to a good baseline first; polish comes after deployment.
-Done: all six pages (Machines, Demand, Downtime, Players, Comps, July plan), Summary, Evidence with model checks, cost analysis (D-083), first deploy (https://dashboard-royale.vercel.app).
-1. **Push the latest build** (Carson commits; first add `AUTH_SECRET` and `STAFF_ACCOUNTS` in Vercel, D-084): Evidence model checks and anything after the first deploy; re-check the live site.
+Done: all six pages, Summary, Evidence with model checks, cost analysis (D-083), staff sign-in with judge access (D-084), deploy (https://dashboard-royale.vercel.app), fixes from the judge-style review.
+1. **Push the review fixes** (Carson commits); re-check the live site.
 2. **Venue network check:** open the live link off Wi-Fi (phone); if the venue's Cisco Umbrella filter blocks it, ask organizers to allow the domain.
 3. **Claims for the remaining page numbers:** the July plan cost analysis (budget.py results) and Summary-only figures, so every number in the write-up/video has a claim.
 4. **After deployment: clean up imperfections** (only if time allows):
    - Q1 quiet-spot label on banks only slightly below the floor (Bar Row B-21/B-24, Hotel B-40/B-41 at 90–98%).
-   - Older claims still say "Used in: Verdict" (page removed).
-   - Visual polish and wording passes on every tab.
+   - Visual polish and wording passes on every tab (reviewers may find Summary and drill-downs text-heavy; more charts, fewer words).
+   - Header crowds at narrow widths now that the sign-in chip is there.
 5. **Final submission (when Carson says):** ≤400-word write-up, ≤2-minute video, Claims & Evidence appendix (from `docs/claims.md`), AI disclosure (`docs/AI_USE.md`), Devpost form; private-window test of the four judge tests.
 
 ## Open items

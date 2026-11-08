@@ -21,6 +21,9 @@ export default function Summary() {
   const unpopular = q1.machines.filter((m) => m.labels.some((l) => l.key === "unpopular"));
   const paying = q1.machines.filter((m) => m.labels.some((l) => l.key === "paying"));
   const quiet = q1.machines.filter((m) => m.labels.some((l) => l.key === "quiet"));
+  // how the headline holds up on a shorter window (the model-test months)
+  const q1Late = computeQ1("2025-05-01", "2025-06-30");
+  const lateUnpopular = q1Late.machines.filter((m) => m.labels.some((l) => l.key === "unpopular")).length;
   const q2 = computeQ2(from, to);
   const hi = q2.months.reduce((a, b) => (b.coinPerDay > a.coinPerDay ? b : a));
   const lo = q2.months.reduce((a, b) => (b.coinPerDay < a.coinPerDay ? b : a));
@@ -39,9 +42,9 @@ export default function Summary() {
 
   const cards = [
     {
-      href: "/machines", topic: "Machine performance", stat: `${unpopular.length + paying.length}`, statLabel: "machines that truly underperform",
-      headline: `Most low earners are in quiet spots, not bad machines: ${unpopular.length} units get clearly less play than identical machines nearby, and 1 (${paying[0]?.id ?? "M-1158"}) pays out too much to be luck.`,
-      detail: `${quiet.length} of ${q1.machines.length} machines sit in quiet areas (all of Back Forty and the High-Limit Room). Replacing a machine never pays back within a month.`,
+      href: "/machines", topic: "Machine performance", stat: `${unpopular.length}`, statLabel: "machines get clearly less play than identical ones nearby",
+      headline: `Most low earners are in quiet spots, not bad machines. Separately, ${paying.length} machine (${paying[0]?.id ?? "M-1158"}) gets normal play but pays out too much to be luck: inspect it.`,
+      detail: `${quiet.length} of ${q1.machines.length} machines sit in quiet areas (all of Back Forty and the High-Limit Room). The ${unpopular.length} are proven over the full six months; on May–June alone ${lateUnpopular === 0 ? "none can be proven" : `only ${lateUnpopular} can be proven`}, because two months of data is too little to separate a weak unit from normal swings. Replacing a machine never pays back within a month.`,
       ev: ["C19", "C03"],
     },
     {
@@ -53,7 +56,7 @@ export default function Summary() {
     {
       href: "/downtime", topic: "Downtime & repairs", stat: k(q3.lostTheo), statLabel: "expected earnings lost to downtime",
       headline: `Downtime is a small cost overall, but repairs waited ${short.avgWait.toFixed(1)} h on shifts short of slot techs vs ${full.avgWait.toFixed(1)} h when fully staffed.`,
-      detail: `${worstMaker.maker} machines break down ${(worstMaker.faultsPer1000 / otherMakers).toFixed(1)}× as often as the other makers. May was the worst month; staffing recovered in June.`,
+      detail: `${worstMaker.maker} machines break down ${(worstMaker.faultsPer1000 / otherMakers).toFixed(1)}× as often as the other makers. ${q3.months.reduce((a, b) => (b.lostTheo > a.lostTheo ? b : a)).month} was the worst month for downtime.`,
       ev: ["C12", "C05", "C06"],
     },
     {
@@ -82,7 +85,7 @@ export default function Summary() {
       <h1 className="title">The floor in six findings</h1>
       <p className="sub">
         The machines on the manager&apos;s bottom-10 list mostly sit in a quiet corner of the floor; they aren&apos;t broken. Here is what drives earnings, and what
-        we&apos;d do with $100,000 in July. Every number links to its evidence.
+        we&apos;d do with $100,000 in July. Every number links to its evidence, and <a href="/checks#model-title">how we tested the model</a> is on the Evidence tab.
       </p>
       <div className="summary-grid">
         {cards.map((c) => (

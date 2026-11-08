@@ -88,7 +88,7 @@ async function Q4Content({ searchParams }: { searchParams: PageProps<"/players">
               <tr><th scope="row">Comps given (cost to the casino)</th><td className="num">{usd(s.comp)}</td></tr>
             </tbody>
           </table>
-          <p className="ev">Across many players luck nearly cancels out, so the net result is close to the house edge. Most individuals still lose: the edge works on every bet.</p>
+          <p className="ev">{Math.abs(s.luck) <= 0.05 * s.theo ? `Across these ${s.players.toLocaleString("en-US")} players luck nearly cancels out (${pct(Math.abs(s.luck) / s.theo, 1)} of the expected loss), so the net result is close to the house edge.` : `Luck moved this group’s result by ${pct(Math.abs(s.luck) / s.theo, 1)} of the expected loss; in a smaller group luck matters more.`} Most individuals still lose: the edge works on every bet ({pct(s.ahead, 1)} finished ahead).</p>
         </section>
       </div>
 

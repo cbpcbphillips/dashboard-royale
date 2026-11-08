@@ -16,6 +16,23 @@ async function q3For(from: string, to: string, zone?: string, bank?: string) {
 const usd = (x: number) => `$${Math.round(x).toLocaleString("en-US")}`;
 const hrs = (x: number) => (Number.isFinite(x) ? `${x.toFixed(1)} h` : "—");
 
+function staffNote(r: Awaited<ReturnType<typeof computeQ3>>): string {
+  const [short, full] = r.staffing;
+  const parts: string[] = [];
+  if (!short.shifts) parts.push("No shift was short of slot techs in this period.");
+  else {
+    const similar = Math.abs(short.faultsPerShift - full.faultsPerShift) <= 0.25 * Math.max(full.faultsPerShift, 0.1);
+    const longer = short.avgWait > full.avgWait * 1.25;
+    parts.push(`Breakdowns per shift: ${short.faultsPerShift.toFixed(1)} on short shifts vs ${full.faultsPerShift.toFixed(1)} fully staffed${similar ? " (about the same)" : ""}`
+      + (similar && longer ? ", so the longer waits come from fewer techs, not more faults." : "."));
+  }
+  const grave = r.byShift.find((s) => s.shift === "grave"), others = r.byShift.filter((s) => s.shift !== "grave" && Number.isFinite(s.avgWait));
+  const otherWait = others.length ? others.reduce((a, s) => a + s.avgWait, 0) / others.length : NaN;
+  if (grave && Number.isFinite(grave.avgWait) && Number.isFinite(otherWait) && grave.avgWait > otherWait * 1.5)
+    parts.push(`The night (grave) shift waited ${grave.avgWait.toFixed(1)} h vs ${otherWait.toFixed(1)} h on day and swing.`);
+  return parts.join(" ");
+}
+
 export default function Q3Page(props: PageProps<"/downtime">) {
   return (
     <>
@@ -89,7 +106,7 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
               ))}
             </tbody>
           </table>
-          <p className="ev">Breakdowns per shift were about the same either way, so the longer waits come from fewer techs, not more faults. Night (grave) shift has one tech and waits long every month.</p>
+          <p className="ev">{staffNote(r)}</p>
         </section>
       </div>
 

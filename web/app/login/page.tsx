@@ -7,7 +7,7 @@ export default function LoginPage(props: PageProps<"/login">) {
   return (
     <div className="login-wrap">
       <div className="card login-card">
-        <div className="eyebrow">Staff only</div>
+        <div className="eyebrow">Staff only · judges welcome</div>
         <h1 className="title login-title">Sign in to the floor review</h1>
         <p className="sub">This dashboard holds machine-level earnings and player results, so it&apos;s limited to Gilded Ace staff.</p>
         <Suspense fallback={<div className="skeleton" style={{ minHeight: 220 }} aria-busy="true" />}>

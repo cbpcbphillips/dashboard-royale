@@ -322,7 +322,7 @@ export function answerSentence(r: Q1Result, inScope: MachineResult[]): string | 
   if (unpop) parts.push(`${unpop} ${unpop === 1 ? "machine gets" : "machines get"} clearly less play than identical machines in the same kind of spot`);
   if (paying) parts.push(`${paying} ${paying === 1 ? "is" : "are"} paying out too much and should be inspected`);
   if (down) parts.push(`${down} ${down === 1 ? "breaks" : "break"} down more than normal`);
-  if (!parts.length) parts.push("no machine is clearly underperforming once its spot, game and luck are accounted for");
+  if (!parts.length) parts.push(r.shortWindow || r.periodDays < 120 ? "no single machine can be proven to underperform with this much data (the full six months can prove more)" : "no machine is clearly underperforming once its spot, game and luck are accounted for");
   let s = parts.join("; ");
   if (quiet) s += `. ${quiet} of the ${inScope.length} sit in quiet spots, which explains most low earnings there`;
   return s.charAt(0).toUpperCase() + s.slice(1) + ".";

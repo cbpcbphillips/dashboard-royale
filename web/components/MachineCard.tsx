@@ -4,6 +4,8 @@ import { LabelChip } from "./LabelChip";
 
 const money = (x: number) => `${x < 0 ? "−" : ""}$${Math.abs(Math.round(x)).toLocaleString("en-US")}`;
 const pct = (x: number, d = 0) => `${(x * 100).toFixed(d)}%`;
+/** A gap vs prediction in words: positive = below, negative = above. */
+const gap = (x: number, d = 1) => (x >= 0 ? `${pct(x, d)} below` : `${pct(-x, d)} above`);
 
 /** Everything about one machine (D-074/D-075): labels with reasons, the four measures with ranks, and the math on request. */
 export function MachineCard({ m, of, floor }: { m: MachineResult; of: number; floor: { tpah: number; occupancy: number; uptime: number } }) {
@@ -28,13 +30,14 @@ export function MachineCard({ m, of, floor }: { m: MachineResult; of: number; fl
         <div>
           <div className="label">Short of prediction <Ev id="C18" /></div>
           <div className="big">{money(m.score)}</div>
+          {m.luckPHolm < 0.05 && <div className="foot">{money(Math.max(-m.luck, 0))} payout loss {m.playShort >= 0 ? "+" : "−"} {money(Math.abs(m.playShort))} {m.playShort >= 0 ? "lost play" : "extra play"}</div>}
         </div>
         <div>
           <div className="label">Play vs prediction</div>
-          <div className="big" title={`Raw gap ${pct(m.rawGap, 1)}; shrunk toward 0 because machines rarely differ much once spot and game are known`}>
-            {below >= 0 ? `${pct(below, 1)} below` : `${pct(-below, 1)} above`}
+          <div className="big" title={`Before adjusting: ${gap(m.rawGap)}; pulled toward 0 because machines rarely differ much once spot and game are known`}>
+            {gap(below)}
           </div>
-          <div className="foot">raw {pct(m.rawGap, 1)} (hover)</div>
+          <div className="foot">before adjusting: {gap(m.rawGap)}</div>
         </div>
       </div>
 
@@ -124,8 +127,8 @@ export function MachineCard({ m, of, floor }: { m: MachineResult; of: number; fl
             is {m.playPHolm < 0.05 ? "proven" : "not proven"}.
           </li>
           <li>
-            <b>How big, most likely?</b> Machines rarely differ much once spot and game are known, so the raw gap ({pct(m.rawGap, 1)}) is pulled toward zero
-            by how little its own data can be trusted (weight {m.weight.toFixed(2)}): best estimate {pct(below, 1)} below, about {money(m.playShort)}.
+            <b>How big, most likely?</b> Machines rarely differ much once spot and game are known, so the raw gap ({gap(m.rawGap)}) is pulled toward zero
+            by how little its own data can be trusted (weight {m.weight.toFixed(2)}): best estimate {gap(below)}, {m.playShort >= 0 ? `about ${money(m.playShort)} of lost earnings` : `about ${money(-m.playShort)} more than predicted`}.
           </li>
           <li>
             <b>Luck or payout?</b> Actual minus expected win is {money(m.luck)}, which is z = {Number.isFinite(m.luckZ) ? m.luckZ.toFixed(2) : "n/a"} in units of

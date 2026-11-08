@@ -49,9 +49,9 @@ async function Q5Content({ searchParams }: { searchParams: PageProps<"/comps">["
         <GroupFilter dims={{ "Loyalty tier": Q5_TIERS }} value={tier ? `Loyalty tier:${tier}` : ""} />
       </FilterBar>
       <p className="answer">
-        From the week of {fmtDay(CHANGE_WEEK)}, a comp cost about half as many points ({all.weekly_points_per_comp_usd_before.toFixed(1)} → {all.weekly_points_per_comp_usd_after.toFixed(1)} points per dollar of
+        Across January–June: from the week of {fmtDay(CHANGE_WEEK)}, a comp cost about half as many points ({all.weekly_points_per_comp_usd_before.toFixed(1)} → {all.weekly_points_per_comp_usd_after.toFixed(1)} points per dollar of
         comp). Since then comps cost the casino {Math.round(rise * 100)}% more per dollar of expected earnings ({pct(all.reinvestment_before)} → {pct(all.reinvestment_after)}), mostly
-        in the Base tier, while visits barely moved: so far the cheaper comps are a cost without a visible return. <Ev id="C07" />
+        in the Base tier, while visits barely moved: so far the cheaper comps are a cost without a visible return. The numbers below follow your period and tier. <Ev id="C07" />
       </p>
 
       <div className="kpis">

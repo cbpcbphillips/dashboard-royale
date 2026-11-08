@@ -43,6 +43,12 @@ export default function Q6Page() {
         <div className="card kpi"><div className="label">Out of {Q6.n_portfolios} allowed mixes</div><div className="value">#{chosen.rank_mid}</div><div className="foot">on the best estimate; #{chosen.rank_low} on the worst case</div></div>
       </div>
 
+      <div className="notice">
+        <b>Where the promotion value comes from:</b> only the casino&apos;s own past promotions (the Winter Slot Tournament, +17%, and Locals Appreciation Week, +7.5%),
+        not city events like the Super Bowl <Ev id="C10" />. The best estimate uses Locals Week&apos;s smaller lift; the second weekend is untested, so it counts for 50–100% of the first.
+        The inspection is all-or-nothing: if a fault is found it recovers M-1158&apos;s full leak, if not, $0. The best cases add up every high estimate at once, so read them as a ceiling, not a forecast.
+      </div>
+
       <section className="card block" aria-labelledby="funded-title">
         <h2 className="section" id="funded-title">What we fund, and how we&apos;ll know it worked</h2>
         <div className="table-scroll">

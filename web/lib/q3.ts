@@ -36,6 +36,7 @@ export type Q3Result = {
   staffing: { label: string; shifts: number; faultsPerShift: number; avgWait: number }[];
   byShift: { shift: string; planned: number; actual: number; avgWait: number; faults: number }[];
   makers: { maker: string; machines: number; faultsPer1000: number; lostTheo: number }[];
+  waitGrid: { month: string; shift: string; wait: number }[];
   topMachines: { id: string; bank: string; zone: string; maker: string; downHours: number; lostTheo: number }[];
 };
 
@@ -103,6 +104,16 @@ export function computeQ3(from: string, to: string, zone?: string, bank?: string
     byShift: ["day", "swing", "grave"].filter((s) => sh.has(s)).map((s) => { const x = sh.get(s)!; return { shift: s, planned: x.planned, actual: x.actual, faults: x.f, avgWait: x.f ? x.w / x.f : NaN }; }),
     makers: [...mdays.entries()].map(([maker, x]) => ({ maker, machines: x.machines, faultsPer1000: ((floorFaults.get(maker) ?? 0) * 1000) / x.n, lostTheo: floorLost.get(maker) ?? 0 }))
       .sort((a, b) => b.faultsPer1000 - a.faultsPer1000),
+    waitGrid: (() => {
+      const g = new Map<string, { f: number; w: number }>();
+      for (let i = 0; i < S.d.length; i++) {
+        if (S.d[i] < from || S.d[i] > to) continue;
+        const k = `${MONTHS[Number(S.d[i].slice(5, 7)) - 1]}|${S.shift[i]}`;
+        const x = g.get(k) ?? { f: 0, w: 0 };
+        x.f += S.f[i]; x.w += S.w[i]; g.set(k, x);
+      }
+      return [...g.entries()].map(([k, x]) => { const [month, shift] = k.split("|"); return { month, shift, wait: x.f ? x.w / x.f : NaN }; });
+    })(),
     topMachines: [...mach.entries()].map(([id, x]) => ({ id, ...x })).sort((a, b) => b.lostTheo - a.lostTheo).slice(0, 10),
   };
 }

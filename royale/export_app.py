@@ -63,6 +63,14 @@ Q2_QUERIES = {
     "walkway": """SELECT area, period, days, occupancy, cpah, entries_per_covered_hour FROM {g}.walkway_periods
                   ORDER BY area, period""",
     "zones": """SELECT zone_id, name FROM {b}.floor_locations WHERE node_type = 'zone' ORDER BY zone_id""",
+    "dip": """SELECT test, change, lo, hi, share, verdict, note FROM {g}.demand_dip_tests""",
+    "hourweek": """SELECT l.zone_id AS z, c.local_weekday AS wd, h.local_hour AS hr, SUM(h.coin_in_cents) / 100.0 AS coin,
+                          SUM(h.available_seconds) / 3600.0 AS ah, SUM(h.occupied_seconds) / 3600.0 AS oh
+                   FROM {b}.machine_hour h
+                   JOIN {b}.floor_locations l ON l.location_id = h.location_id
+                   JOIN {b}.calendar_day c ON c.gaming_date = h.gaming_date
+                   WHERE h.active AND h.available_seconds > 0
+                   GROUP BY l.zone_id, c.local_weekday, h.local_hour""",
 }
 
 
@@ -83,6 +91,8 @@ def export_q2(source: str) -> None:
                  "ah": r(zd.ah, 3), "oh": r(zd.oh, 3), "ent": r(zd.ent, 0), "cov": r(zd["cov"], 3), "wc": [int(v) for v in zd.wc]},
         "events": clean(t["events"]),
         "walkway": clean(t["walkway"]),
+        "dip": clean(t["dip"].astype({c: float for c in ("change", "lo", "hi", "share")})),
+        "hourweek": clean(t["hourweek"].astype({"hr": int, "coin": float, "ah": float, "oh": float})),
     }
     out = OUT.parent / "q2.json"
     out.write_text(json.dumps(payload, separators=(",", ":"), allow_nan=False))
@@ -213,6 +223,11 @@ MODEL_QUERIES = {
     "moves": """SELECT machine_id, CAST(move_date AS STRING) AS move_date, from_zone, to_zone, actual_before, actual_after,
                        actual_change, predicted_change FROM {g}.model_move_check ORDER BY move_date""",
     "weekday": """SELECT * FROM {g}.model_weekday_baseline""",
+    "persistence": """SELECT * FROM {g}.q1_persistence""",
+    "challenger": """SELECT * FROM {g}.model_challenger""",
+    "floor_metrics": """SELECT * FROM {g}.floor_forecast_metrics""",
+    "floor_daily": """SELECT CAST(gaming_date AS STRING) AS d, part, coin, weekday_avg, constant_mean, july_forecast, promo FROM {g}.floor_forecast_daily ORDER BY gaming_date""",
+    "fault_shift": """SELECT * FROM {g}.fault_forecast_shift""",
     "weekday_daily": """SELECT CAST(gaming_date AS STRING) AS d, weekday FROM {g}.model_weekday_daily ORDER BY gaming_date""",
 }
 
@@ -225,11 +240,12 @@ def export_model(source: str) -> None:
     t["daily"] = t["daily"].merge(t["weekday_daily"], on="d", how="left")
     for k in t:
         for c in t[k].columns:
-            if t[k][c].dtype == object and c not in ("d", "machine_id", "move_date", "from_zone", "to_zone", "target", "method", "label", "mlflow_run_id", "baseline", "weekday_factors"):
+            if t[k][c].dtype == object and c not in ("d", "machine_id", "move_date", "from_zone", "to_zone", "target", "method", "label", "mlflow_run_id", "baseline", "weekday_factors", "group", "forecast", "part", "shift", "promo"):
                 t[k][c] = pd.to_numeric(t[k][c], errors="coerce")
     payload = {"meta": {"generated_at": dt.datetime.now().isoformat(timespec="seconds"),
                         "source": f"{'Databricks Unity Catalog' if source == 'databricks' else 'local DuckDB mirror'}: royale.gold.model_metrics, model_predictions, model_move_check; MLflow experiment royale-tpah"},
-               "metrics": clean(t["metrics"]), "daily": clean(t["daily"]), "moves": clean(t["moves"]), "weekday": clean(t["weekday"])[0]}
+               "metrics": clean(t["metrics"]), "daily": clean(t["daily"]), "moves": clean(t["moves"]), "weekday": clean(t["weekday"])[0], "persistence": clean(t["persistence"]), "challenger": clean(t["challenger"])[0],
+               "floor": {"metrics": clean(t["floor_metrics"]), "daily": clean(t["floor_daily"].assign(d=t["floor_daily"]["d"].astype(str).str[:10])), "shifts": clean(t["fault_shift"])}}
     out = OUT.parent / "model.json"
     out.write_text(json.dumps(payload, separators=(",", ":"), allow_nan=False, default=str))
     print(f"wrote {out} ({out.stat().st_size / 1e3:.0f} kB) from {source}")

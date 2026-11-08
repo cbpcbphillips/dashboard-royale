@@ -12,6 +12,7 @@ export const PAGES = [
   { href: "/players", label: "Players" },
   { href: "/comps", label: "Comps" },
   { href: "/plan", label: "July plan" },
+  { href: "/findings", label: "More findings" },
   { href: "/checks", label: "Evidence" },
 ] as const;
 

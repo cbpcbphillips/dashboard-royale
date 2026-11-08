@@ -19,6 +19,7 @@ Filters: period on every tab, with a warning on short windows (D-046); bank on Q
 ## To do (in order)
 Working rule (2026-11-08): get every question to a good baseline first; polish comes after deployment.
 Done: all six pages, Summary, Evidence with model checks, cost analysis (D-083), staff sign-in with judge access (D-084), deploy (https://dashboard-royale.vercel.app), fixes from the judge-style review.
+Done (D-086): remediation plan A–S from the rubric grade (slowdown explained, out-of-sample ranking check, profit-based July plan, forecast yardstick and staffing check, challenger model, More findings tab, hero charts, glossary, README, tests + CI, accessibility pass). Done: D-090/D-091 (signs dropped; mix = 2 promotions + inspect M-1158). Open: usability test with 1–2 non-technical readers (script in `local/USABILITY_TEST.md`).
 1. **Push the review fixes** (Carson commits); re-check the live site.
 2. **Venue network check:** open the live link off Wi-Fi (phone); if the venue's Cisco Umbrella filter blocks it, ask organizers to allow the domain.
 3. **Claims for the remaining page numbers:** the July plan cost analysis (budget.py results) and Summary-only figures, so every number in the write-up/video has a claim.

@@ -26,7 +26,10 @@ export function Q1List({ rows, total, page, pageSize, selected }: { rows: ListRo
 
   function go(next: Record<string, string | undefined>) {
     const q = new URLSearchParams(params.toString());
-    for (const [k, v] of Object.entries(next)) (v ? q.set(k, v) : q.delete(k));
+    for (const [k, v] of Object.entries(next)) {
+      if (v) q.set(k, v);
+      else q.delete(k);
+    }
     start(() => router.replace(`${path}?${q}`, { scroll: false }));
   }
   const pages = Math.max(1, Math.ceil(total / pageSize));

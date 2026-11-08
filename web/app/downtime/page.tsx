@@ -3,6 +3,9 @@ import { Suspense } from "react";
 import { Ev } from "@/components/Ev";
 import { FilterBar } from "@/components/FilterBar";
 import { checkScope, parseFilters, periodLabel } from "@/lib/period";
+import { GridHeat } from "@/components/Heat";
+import { MODEL } from "@/lib/model";
+import { computeQ2 } from "@/lib/q2";
 import { Q3_BANKS, Q3_META, Q3_ZONES, computeQ3, q3Sentence } from "@/lib/q3";
 
 export const metadata = { title: "Downtime & repairs · The Gilded Ace" };
@@ -50,6 +53,9 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
   const f = checkScope(parseFilters(await searchParams), Q3_ZONES.map((z) => ({ id: z.zone_id })), Q3_BANKS.map((b) => ({ id: b.bank_id, zoneId: b.zone_id })));
   const r = await q3For(f.from, f.to, f.zone, f.bank);
   const label = periodLabel(f);
+  // lower bound: a player only loses the game if the machines around are busy too (share of machine time in use)
+  const busy = computeQ2(f.from, f.to, f.zone).occupancy;
+  const night = MODEL.floor.shifts.find((x) => x.shift === "grave");
   const maxMonth = Math.max(...r.months.map((m) => m.lostTheo), 1);
 
   return (
@@ -64,16 +70,28 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
       <p className="answer">{q3Sentence(r)} <Ev id="C12" /></p>
 
       <div className="kpis">
-        <div className="card kpi"><div className="label">Expected earnings lost</div><div className="value">{usd(r.lostTheo)}</div><div className="foot">{usd(r.lostCoin)} of coin-in not played</div></div>
+        <div className="card kpi"><div className="label">Expected earnings lost</div><div className="value">{usd(r.lostTheo)}</div><div className="foot">at most; as low as {usd(r.lostTheo * busy)} if players move to a free machine nearby · {usd(r.lostCoin)} of coin-in not played</div></div>
         <div className="card kpi"><div className="label">Machine-hours down</div><div className="value">{Math.round(r.downHours).toLocaleString("en-US")}</div><div className="foot">{r.faults} breakdowns</div></div>
         <div className="card kpi"><div className="label">Average wait for a tech</div><div className="value">{hrs(r.avgWait)}</div><div className="foot">from breakdown to repair starting</div></div>
       </div>
+
+      <section className="card block" aria-labelledby="wait-title">
+        <h2 className="section" id="wait-title">When repairs waited: average wait for a tech, by month and shift <Ev id="C05" /></h2>
+        <p className="cap">How to read it: darker = longer wait from breakdown to repair starting. Day and swing waits jump in April–May, when slot techs were short; the night shift (one tech) waits long every month.</p>
+        <GridHeat
+          rows={["day", "swing", "grave"].filter((s) => r.waitGrid.some((x) => x.shift === s))}
+          cols={[...new Set(r.waitGrid.map((x) => x.month))]}
+          get={(s, mo) => r.waitGrid.find((x) => x.shift === s && x.month === mo)?.wait ?? NaN}
+          fmt={(v) => `${v.toFixed(1)} h`}
+          label="Average wait for a tech in hours, by shift (rows) and month (columns)"
+        />
+      </section>
 
       <div className="two-col">
         <section className="card" aria-labelledby="month-title">
           <h2 className="section" id="month-title">When: expected earnings lost by month <Ev id="C12" /></h2>
           <p className="cap">{r.scopeName}, {label}. An upper bound: some players move to a neighbouring machine.</p>
-          <div className="table-scroll"><table className="q2-table">
+          <div className="table-scroll" tabIndex={0}><table className="q2-table">
             <thead><tr><th scope="col">Month</th><th scope="col" className="num">Lost</th><th scope="col" className="num">Hours down</th><th scope="col" className="bar-col"></th></tr></thead>
             <tbody>
               {r.months.map((m) => (
@@ -91,7 +109,7 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
         <section className="card" aria-labelledby="staff-title">
           <h2 className="section" id="staff-title">Why: repairs wait when slot techs are short <Ev id="C05" /></h2>
           <p className="cap">All shifts in {label} (techs cover the whole floor). Wait = breakdown to repair starting.</p>
-          <div className="table-scroll"><table className="q2-table">
+          <div className="table-scroll" tabIndex={0}><table className="q2-table">
             <thead><tr><th scope="col">Shifts</th><th scope="col" className="num">Count</th><th scope="col" className="num">Breakdowns / shift</th><th scope="col" className="num">Average wait</th></tr></thead>
             <tbody>
               {r.staffing.map((s) => (
@@ -99,7 +117,7 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
               ))}
             </tbody>
           </table></div>
-          <div className="table-scroll"><table className="q2-table" style={{ marginTop: 14 }}>
+          <div className="table-scroll" tabIndex={0}><table className="q2-table" style={{ marginTop: 14 }}>
             <thead><tr><th scope="col">Shift</th><th scope="col" className="num">Tech-shifts worked / planned</th><th scope="col" className="num">Average wait</th></tr></thead>
             <tbody>
               {r.byShift.map((s) => (
@@ -108,6 +126,7 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
             </tbody>
           </table></div>
           <p className="ev">{staffNote(r)}</p>
+          {night && <p className="ev"><b>Should July add a tech?</b> No: breakdowns arrive close to at random by weekday and shift, and an extra night tech would save about {usd(night.extra_tech_saves_usd)} of expected earnings in July against $11,520. <Ev id="C31" /></p>}
         </section>
       </div>
 
@@ -115,7 +134,7 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
         <section className="card" aria-labelledby="maker-title">
           <h2 className="section" id="maker-title">Which makers break down most <Ev id="C06" /></h2>
           <p className="cap">Whole floor, {label}. Per 1,000 days on the floor, so makers with more machines compare fairly.</p>
-          <div className="table-scroll"><table className="q2-table">
+          <div className="table-scroll" tabIndex={0}><table className="q2-table">
             <thead><tr><th scope="col">Maker</th><th scope="col" className="num">Machines</th><th scope="col" className="num">Breakdowns per 1,000 days</th><th scope="col" className="num">Expected earnings lost</th></tr></thead>
             <tbody>
               {r.makers.map((m) => (
@@ -128,7 +147,7 @@ async function Q3Content({ searchParams }: { searchParams: PageProps<"/downtime"
         <section className="card" aria-labelledby="top-title">
           <h2 className="section" id="top-title">Machines that lost the most ({r.scopeName})</h2>
           <p className="cap">Pick a zone or bank above to drill in.</p>
-          <div className="table-scroll"><table className="q2-table">
+          <div className="table-scroll" tabIndex={0}><table className="q2-table">
             <thead><tr><th scope="col">Machine</th><th scope="col">Bank</th><th scope="col">Maker</th><th scope="col" className="num">Hours down</th><th scope="col" className="num">Lost</th></tr></thead>
             <tbody>
               {r.topMachines.map((m) => (

@@ -9,11 +9,12 @@ import path from "node:path";
 export type Action = {
   action: string; name: string; qty: number; target: string; cost: number;
   benefit_low: number; benefit_mid: number; benefit_high: number; benefit_days: number;
-  net_low: number; net_mid: number; net_high: number; return_per_dollar_mid: number; how: string; evidence: string;
+  net_low: number; net_mid: number; net_high: number; return_per_dollar_mid: number; how: string; evidence: string; profit_factor: number; gross_mid: number;
 };
 export type Portfolio = { actions: string; types: number; cost: number; net_low: number; net_mid: number; net_high: number; rank_mid: number; rank_low: number };
 type Q6Data = {
   meta: { generated_at: string; source: string; budget: number; window: string; chosen: string };
+  facts: Record<string, number>;
   actions: Action[]; portfolios: Portfolio[]; chosen: Portfolio[]; safest: Portfolio[]; n_portfolios: number;
 };
 

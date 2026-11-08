@@ -25,7 +25,10 @@ export function FilterBar({ from, to, zone, bank, zones, banks, note, children }
 
   function set(next: Record<string, string | undefined>) {
     const q = new URLSearchParams(params.toString());
-    for (const [k, v] of Object.entries(next)) (v ? q.set(k, v) : q.delete(k));
+    for (const [k, v] of Object.entries(next)) {
+      if (v) q.set(k, v);
+      else q.delete(k);
+    }
     if (q.get("from") === WINDOW.from && q.get("to") === WINDOW.to) {
       q.delete("from");
       q.delete("to");

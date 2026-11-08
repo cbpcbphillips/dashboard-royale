@@ -19,14 +19,14 @@ export function MultiLine({ data, series, fmt, summary }: { data: Record<string,
           <Tooltip formatter={(v, name) => [f(Number(v)), series.find((s) => s.key === name)?.label ?? String(name)]} labelFormatter={(d) => day(String(d))} />
           <Legend formatter={(v) => series.find((s) => s.key === v)?.label ?? v} wrapperStyle={{ fontSize: 12 }} />
           {series.map((s) => (
-            <Line key={s.key} dataKey={s.key} stroke={s.color} strokeWidth={s.width ?? 2} strokeDasharray={s.dash} dot={false} isAnimationActive={false} />
+            <Line key={s.key} dataKey={s.key} stroke={s.color} strokeWidth={s.width ?? 2} strokeDasharray={s.dash} dot={s.width === 0 ? { r: 5, fill: s.color, stroke: s.color } : false} isAnimationActive={false} connectNulls={false} />
           ))}
         </LineChart>
       </ResponsiveContainer>
     </div>
     <details className="chart-data">
       <summary>Show the numbers</summary>
-      <div className="table-scroll">
+      <div className="table-scroll" tabIndex={0}>
         <table className="q2-table">
           <thead><tr><th scope="col">Day</th>{series.map((s) => <th key={s.key} scope="col" className="num">{s.label}</th>)}</tr></thead>
           <tbody>

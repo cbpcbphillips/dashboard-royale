@@ -58,7 +58,7 @@ async function Q4Content({ searchParams }: { searchParams: PageProps<"/players">
       <div className="kpis">
         <div className="card kpi"><div className="label">Wagered</div><div className="value">{big(s.coin)}</div><div className="foot">{s.players.toLocaleString("en-US")} players · {usd(s.coin / s.players)} each</div></div>
         <div className="card kpi"><div className="label">Got back</div><div className="value">{big(s.payout)}</div><div className="foot">{pct(s.payout / s.coin, 1)} of what they wagered</div></div>
-        <div className="card kpi"><div className="label">Net result for players</div><div className="value">{big(s.net)}</div><div className="foot">typical player {usd(s.median_net)}; {pct(s.ahead, 1)} finished ahead</div></div>
+        <div className="card kpi"><div className="label">Net result for players</div><div className="value">{big(s.net)}</div><div className="foot">typical player {usd(s.median_net)}; {pct(s.ahead, 1)} finished ahead (range {pct(Math.max(0, s.ahead - 1.96 * Math.sqrt(s.ahead * (1 - s.ahead) / s.players)), 1)}–{pct(Math.min(1, s.ahead + 1.96 * Math.sqrt(s.ahead * (1 - s.ahead) / s.players)), 1)})</div></div>
       </div>
 
       <div className="two-col">
@@ -97,10 +97,10 @@ async function Q4Content({ searchParams }: { searchParams: PageProps<"/players">
 
       <section className="card block" aria-labelledby="groups-title">
         <h2 className="section" id="groups-title">Guest groups ({q.months.label})</h2>
-        <p className="cap">Click a group to drill in. Share = this group&apos;s part of all tracked expected earnings.</p>
-        <div className="table-scroll">
+        <p className="cap">Click a group to drill in. Share = this group&apos;s part of all tracked expected earnings. Bars: <span className="swatch pb-players-sw" /> share of players vs <span className="swatch pb-earn-sw" /> share of earnings; a long second bar means a small group carries a lot of the play (locals).</p>
+        <div className="table-scroll" tabIndex={0}>
           <table className="q2-table">
-            <thead><tr><th scope="col">Group</th><th scope="col" className="num">Players</th><th scope="col" className="num">Finished ahead</th><th scope="col" className="num">Wagered each</th><th scope="col" className="num">Net each</th><th scope="col" className="num">Visits each</th><th scope="col" className="num">Share of earnings</th></tr></thead>
+            <thead><tr><th scope="col">Group</th><th scope="col" className="num">Players</th><th scope="col" className="num">Finished ahead</th><th scope="col" className="num">Wagered each</th><th scope="col" className="num">Net each</th><th scope="col" className="num">Visits each</th><th scope="col" className="num">Share of earnings</th><th scope="col" className="bar-col">Share of players vs earnings</th></tr></thead>
             {q.groups.map((gr) => (
               <tbody key={gr.dim}>
                 <tr className="group-head"><th colSpan={7} scope="colgroup">{gr.dim}</th></tr>
@@ -113,6 +113,10 @@ async function Q4Content({ searchParams }: { searchParams: PageProps<"/players">
                     <td className="num">{usd(x.net / x.players)}</td>
                     <td className="num">{x.visits.toFixed(1)}</td>
                     <td className="num">{pct(x.share_theo)}</td>
+                    <td className="bar-col" title={`${pct(x.players / q.all.players)} of players, ${pct(x.share_theo)} of expected earnings`}>
+                      <span className="pair-bar"><i className="pb-players" style={{ width: `${(x.players / q.all.players) * 100}%` }} /></span>
+                      <span className="pair-bar"><i className="pb-earn" style={{ width: `${x.share_theo * 100}%` }} /></span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

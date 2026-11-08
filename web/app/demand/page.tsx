@@ -4,7 +4,8 @@ import { DemandChart } from "@/components/DemandChart";
 import { Ev } from "@/components/Ev";
 import { FilterBar } from "@/components/FilterBar";
 import { checkScope, isFullWindow, parseFilters, periodLabel } from "@/lib/period";
-import { Q2_META, Q2_ZONES, computeQ2, q2Sentence } from "@/lib/q2";
+import { HourWeekHeat } from "@/components/Heat";
+import { Q2_DIP, Q2_META, Q2_ZONES, computeQ2, hourWeek, q2Sentence } from "@/lib/q2";
 
 export const metadata = { title: "Floor demand · The Gilded Ace" };
 
@@ -17,6 +18,8 @@ async function q2For(from: string, to: string, zone?: string) {
 const usd = (x: number) => `$${Math.round(x).toLocaleString("en-US")}`;
 const pct = (x: number, d = 0) => `${(x * 100).toFixed(d)}%`;
 const signed = (x: number) => (Math.round(x * 100) === 0 ? "0%" : `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(0)}%`);
+const pctR = (x: number | null | undefined) => (x == null || !Number.isFinite(x) ? "—" : `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(1)}%`);
+const pctAbs = (x: number | null | undefined) => (x == null || !Number.isFinite(x) ? "—" : `${Math.abs(x * 100).toFixed(1)}%`);
 const fmtDay = (d: string) => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
 export default function Q2Page(props: PageProps<"/demand">) {
@@ -40,6 +43,10 @@ async function Q2Content({ searchParams }: { searchParams: PageProps<"/demand">[
     ...r.events.map((e) => ({ from: e.start_date, to: e.end_date, label: e.name, kind: "event" as const })),
     ...(r.closure ? [{ from: r.closure.from, to: r.closure.to, label: "Back Forty walkway closed", kind: "closure" as const }] : []),
   ];
+  const head = Q2_DIP.find((d) => d.test.startsWith("Headline"));
+  const traffic = Q2_DIP.find((d) => d.test.startsWith("Fewer people"));
+  const inUse = Q2_DIP.find((d) => d.test.includes("machines in use"));
+  const tests = Q2_DIP.filter((d) => d.verdict);
   const evIn = r.events.filter((e) => e.inPeriod).sort((a, b) => b.uplift - a.uplift);
   const maxLift = Math.max(...r.events.map((e) => e.uplift_hi - 1), 0.01);
   const floorRate = r.zones.reduce((a, z) => a + z.coinPerHour, 0) / Math.max(r.zones.length, 1);
@@ -61,9 +68,15 @@ async function Q2Content({ searchParams }: { searchParams: PageProps<"/demand">[
         <h2 className="section" id="daily-title">Coin-in per day: {r.scopeName}</h2>
         <p className="cap">
           Dark line: 7-day average. <span className="swatch gold" /> event days · <span className="swatch grey" /> Back Forty walkway closed. Hover for the day.{" "}
-          Across the whole half-year, the floor got about 5% quieter after April (May–June), which no input known on Apr 30 explains. <Ev id="C14" />
+          Across the whole half-year the floor got quieter after April because fewer people came in; see below. <Ev id="C23" />
         </p>
         <DemandChart points={r.days} bands={bands} summary={`Coin-in per day for ${r.scopeName}, ${label}: ${usd(r.coinPerDay)} a day on average. Event days and the Back Forty walkway closure are shaded; weekends run ${Number.isFinite(r.weekendLift) ? signed(r.weekendLift) : "n/a"} vs weekdays.`} />
+      </section>
+
+      <section className="card block" aria-labelledby="hw-title">
+        <h2 className="section" id="hw-title">When players come: machines in use by hour of the week ({r.scopeName})</h2>
+        <p className="cap">How to read it: each square is one hour of one weekday; darker = more of the machines in use. The gaming day runs 6 a.m. to 6 a.m., so late-night hours belong to the day before. Whole half-year.</p>
+        <HourWeekHeat cells={hourWeek(f.zone)} label={`Share of machines in use by weekday and hour, ${r.scopeName}`} fmt={(v) => `${Math.round(v * 100)}%`} />
       </section>
 
       <div className="two-col">
@@ -110,6 +123,30 @@ async function Q2Content({ searchParams }: { searchParams: PageProps<"/demand">[
           <p className="ev">Percent = vs the average zone. The High-Limit Room has high stakes but few players, so its coin-in per hour is high while its time in use is low.</p>
         </section>
       </div>
+
+      <section className="card block" aria-labelledby="dip-title">
+        <h2 className="section" id="dip-title">Why the floor got quieter after April <Ev id="C23" /></h2>
+        <p className="answer">
+          Fewer people came in. Comparing the same weekdays, coin-in per day fell {pctAbs(head?.change)} from January–April to May–June. Door-counter traffic fell{" "}
+          {pctAbs(traffic?.change)} and machines in use {pctAbs(inUse?.change)}, while the amount played per busy hour barely moved. Every other explanation we tested is ruled out.
+        </p>
+        <div className="table-scroll" tabIndex={0}>
+          <table className="q2-table">
+            <thead><tr><th scope="col">Explanation tested</th><th scope="col" className="num">Change</th><th scope="col">Verdict</th><th scope="col">What we found</th></tr></thead>
+            <tbody>
+              {tests.map((d) => (
+                <tr key={d.test}>
+                  <th scope="row">{d.test}</th>
+                  <td className="num">{pctR(d.change)}{d.lo != null && d.hi != null ? <span className="hint block-hint">{pctR(d.lo)} to {pctR(d.hi)}</span> : null}</td>
+                  <td><span className={`cause cause-${d.verdict === "ruled out" ? "luck" : "location"}`}>{d.verdict}</span></td>
+                  <td className="wrap-cell">{d.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="ev">Whole half-year (not affected by the filters). Ranges: 95% of 2,000 resamples of days within weekday. Weather: NOAA GHCN-Daily, Las Vegas station USW00023169 (public domain), used only to explain, never as a forecast input. The data says who stopped coming, not why.</p>
+      </section>
 
       <section className="card block" aria-labelledby="b40-title">
         <h2 className="section" id="b40-title">Back Forty and the walkway closure <Ev id="C11" /></h2>

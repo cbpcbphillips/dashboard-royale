@@ -39,7 +39,7 @@ export function DemandChart({ points, bands, summary }: { points: Point[]; bands
     </div>
     <details className="chart-data">
       <summary>Show the numbers</summary>
-      <div className="table-scroll">
+      <div className="table-scroll" tabIndex={0}>
         <table className="q2-table">
           <thead><tr><th scope="col">Day</th><th scope="col" className="num">Coin-in</th><th scope="col" className="num">7-day average</th><th scope="col">Events</th></tr></thead>
           <tbody>

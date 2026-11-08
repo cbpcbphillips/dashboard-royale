@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useSyncExternalStore, useTransition } from "react";
 
 export type MapSlot = { id: string; x: number; y: number; zone: string; bank: string; machine?: string };
 export type MapMachine = {
@@ -70,6 +70,15 @@ function colour(v: number, max: number, cb: boolean) {
 }
 
 /** Floor plan: a dot per slot at its real coordinates, coloured by the chosen measure; click selects a machine. */
+function subscribeCb(onChange: () => void) {
+  window.addEventListener("colourblind", onChange);
+  window.addEventListener("storage", onChange);
+  return () => { window.removeEventListener("colourblind", onChange); window.removeEventListener("storage", onChange); };
+}
+function readCb() {
+  try { return localStorage.getItem("colourblind") === "1"; } catch { return false; }
+}
+
 export function FloorMap({ slots, machines, zones, selected, scope }: { slots: MapSlot[]; machines: MapMachine[]; zones: { id: string; name: string; x: number; y: number }[]; selected?: string; scope?: { zone?: string; bank?: string } }) {
   const router = useRouter();
   const path = usePathname();
@@ -77,14 +86,13 @@ export function FloorMap({ slots, machines, zones, selected, scope }: { slots: M
   const [, start] = useTransition();
   const [measure, setMeasure] = useState<Measure>("earn");
   const [basis, setBasis] = useState<Basis>("expected");
-  const [cb, setCb] = useState(false);
+  // colour-blind preference lives in localStorage; read it without a setState-in-effect (server render = off)
+  const cb = useSyncExternalStore(subscribeCb, readCb, () => false);
   const [hover, setHover] = useState<{ slot: MapSlot; x: number; y: number } | null>(null);
 
-  useEffect(() => {
-    try { setCb(localStorage.getItem("colourblind") === "1"); } catch {}
-  }, []);
   function toggleCb() {
-    setCb((v) => { try { localStorage.setItem("colourblind", v ? "0" : "1"); } catch {} return !v; });
+    try { localStorage.setItem("colourblind", cb ? "0" : "1"); } catch {}
+    window.dispatchEvent(new Event("colourblind"));
   }
 
   const byId = useMemo(() => new Map(machines.map((m) => [m.id, m])), [machines]);
@@ -93,11 +101,8 @@ export function FloorMap({ slots, machines, zones, selected, scope }: { slots: M
   const shownBasis: Basis = measure === "luck" ? "expected" : basis; // luck is always actual vs expected
   const label = `${MEASURES.find((x) => x.key === measure)!.label} vs ${BASES.find((x) => x.key === shownBasis)!.label}`;
   const m = { label, fmt: v.fmt, unit: v.unit };
-  const max = useMemo(() => {
-    if (v.fixedMax) return v.fixedMax;
-    const vals = machines.map((x) => Math.abs(x[metric])).filter(Number.isFinite).sort((a, b) => a - b);
-    return vals[Math.floor(vals.length * 0.95)] || 1;
-  }, [machines, metric, v.fixedMax]);
+  const vals = machines.map((x) => Math.abs(x[metric])).filter(Number.isFinite).sort((a, b) => a - b);
+  const max = v.fixedMax ?? (vals[Math.floor(vals.length * 0.95)] || 1);
 
   const xs = slots.map((s) => s.x), ys = slots.map((s) => s.y);
   const pad = 6;

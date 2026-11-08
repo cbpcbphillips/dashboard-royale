@@ -8,7 +8,7 @@ export type ScatterPoint = { id: string; play: number; luckZ: number; label: "pa
 
 const ORDER: ScatterPoint["label"][] = ["normal", "lowSample", "quiet", "down", "unpopular", "paying"]; // draw the important ones last (on top)
 const NAMES: Record<ScatterPoint["label"], string> = {
-  paying: "Paying too much: inspect", unpopular: "Unpopular unit", quiet: "Quiet spot", lowSample: "Low sample size", down: "Down too often", normal: "Normal",
+  paying: "Paying too much: inspect", unpopular: "Unpopular unit", quiet: "Quiet spot", lowSample: "Not proven yet / few days", down: "Down too often", normal: "Normal",
 };
 
 /** Luck vs play: every machine's play vs its prediction (x) against its luck (y). Separates the three explanations at a

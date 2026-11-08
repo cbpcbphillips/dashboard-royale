@@ -10,16 +10,16 @@
  },
  {
   "id": "C02",
-  "claim": "Back Forty is a weak **spot**, not a weak game mix: for every one of the 8 games it shares with other zones, the same game earns 35–48% less theo per available hour there, and players occupy its machines ~37% less (e.g. G-PEN89 $14.13 vs $22.56; occupancy 0.277 vs 0.438)",
+  "claim": "Back Forty is a weak **spot**, not a weak game mix: for every one of the 8 games it shares with other zones, the same game earns 35–48% less expected earnings per open hour there, and players occupy its machines ~37% less (e.g. G-PEN89 $14.13 vs $22.56; occupancy 0.277 vs 0.438)",
   "query": "`sql/claims/C02_back_forty_same_game.sql`",
-  "result": "Zone TPAH (machine-days attributed to the zone each machine sat in that day, as the dashboard computes it): Back Forty $11.71 vs $16.64–$21.36 for other zones; its 8 banks are the 8 lowest of 51",
+  "result": "Zone expected earnings per open hour (machine-days attributed to the zone each machine sat in that day, as the dashboard computes it): Back Forty $11.71 vs $16.64–$21.36 for other zones; its 8 banks are the 8 lowest of 51",
   "alternative": "**Game mix** (tested: gap holds within each game); walkway closure Mar 3–Apr 7 (occupancy dips to 0.215 in March but is low every month, 0.246–0.288)",
   "limitation": "Location vs. player mix in that area can't be fully separated with this data; the forecasting model adds calendar controls (C14)",
   "used_in": "Machines, Demand"
  },
  {
   "id": "C03",
-  "claim": "M-1158's shortfall is too large to be luck: house win $15,796 vs theo $51,961 (observed hold 3.0% vs 10% configured), luck z = −4.57; it is the only machine of 310 at z ≤ −3",
+  "claim": "M-1158's shortfall is too large to be luck: house win $15,796 vs expected $51,961 (observed hold 3.0% vs 10% configured), luck score = −4.57; it is the only machine of 310 at luck score ≤ −3",
   "query": "`sql/claims/C03_m1158_luck_z.sql`",
   "result": "One-sided p = 2.4e-6; chance any of 310 machines is this extreme by luck = 0.0008. Across all machines z has mean −0.07, SD 1.10 (≈ luck)",
   "alternative": "**Luck** (rejected after multiple-testing adjustment); low demand (no: its occupancy is 0.93× bank-mates, close to normal)",
@@ -46,16 +46,16 @@
  },
  {
   "id": "C06",
-  "claim": "**Ridgeline** machines fault 2.4–3.6× as often as the other makers once exposure is counted: 40.4 fault tickets per 1,000 machine-days vs 16.7 (Northwind) and 11.1 (Halcyon); Ridgeline downtime cost ~$56.6k theo over six months vs $26.2k and $19.5k",
+  "claim": "**Ridgeline** machines fault 2.4–3.6× as often as the other makers once exposure is counted: 40.4 fault tickets per 1,000 machine-days vs 16.7 (Northwind) and 11.1 (Halcyon); Ridgeline downtime cost ~$56.6k expected earnings over six months vs $26.2k and $19.5k",
   "query": "`sql/claims/C06_manufacturer_fault_rate.sql`",
   "result": "680 / 305 / 222 faults on 94 / 101 / 115 machines",
   "alternative": "**More Ridgeline machines** (rejected: rate is per machine-day); age/title mix within Ridgeline not yet tested",
-  "limitation": "Lost theo uses zone-hour rates (C12 method)",
+  "limitation": "Lost expected earnings uses zone-hour rates (C12 method)",
   "used_in": "Downtime, July plan (preventive maintenance)"
  },
  {
   "id": "C07",
-  "claim": "Comps became about **2× cheaper in points from the week of Apr 28** (13.1 → 6.0 points per comp $ of menu value). Comp cost per $ of tracked theo rose 1.18% → 1.32% (+12%, Jan–Mar vs May–Jun), the rise **survives holding the tier mix fixed** (1.32% re-weighted), and it sits in the Base tier (1.12% → 1.28%; comps per player-month +14%) while Gold stayed flat. Visits per player-month barely moved (Base 2.45 → 2.51, Gold 5.43 → 5.39)",
+  "claim": "Comps became about **2× cheaper in points from the week of Apr 28** (13.1 → 6.0 points per comp $ of menu value). Comp cost per $ of tracked expected earnings rose 1.18% → 1.32% (+12%, Jan–Mar vs May–Jun), the rise **survives holding the tier mix fixed** (1.32% re-weighted), and it sits in the Base tier (1.12% → 1.28%; comps per player-month +14%) while Gold stayed flat. Visits per player-month barely moved (Base 2.45 → 2.51, Gold 5.43 → 5.39)",
   "query": "`sql/claims/C07_comp_rate_change.sql` (+ `royale/q5_comp_change.py` finds the change week)",
   "result": "Change week found by least-squares split of the weekly series; April left out as the transition month",
   "alternative": "**Tier-mix shift** (rejected by re-weighting); slow drift before the step (14.3 → 12.4 Jan–Apr) noted separately",
@@ -64,7 +64,7 @@
  },
  {
   "id": "C08",
-  "claim": "Month-to-month swings in floor hold are luck: observed hold 9.36–9.83% vs configured 9.44–9.49%; the largest month (Feb, +$133.5k vs theo) has luck z 1.97, within normal luck",
+  "claim": "Month-to-month swings in floor hold are luck: observed hold 9.36–9.83% vs configured 9.44–9.49%; the largest month (Feb, +$133.5k vs expected) has luck score 1.97, within normal luck",
   "query": "`sql/claims/C08_floor_luck_by_month.sql`",
   "result": "Luck z per month −0.52 to +1.97",
   "alternative": "—",
@@ -76,7 +76,7 @@
   "claim": "Replacing a machine does not pay back inside the 30-day budget window: of 308 active machines, only 1 shows a positive lease net (+$117, and its low end is negative); none of the 5 machine/game candidates do (best −$2,450); purchases never do (9 days left after a 21-day lead)",
   "query": "`sql/claims/C09_replacement_payback.sql`",
   "result": "Lease $3,380 (16 benefit days after a 14-day lead), 6 h install downtime; gain = coin-in shortfall vs bank-mates × the machine's own hold",
-  "alternative": "**Hold swap** (a higher-hold game would raise theo): kept as a separate, flagged column because it assumes players don't react to tighter odds",
+  "alternative": "**Hold swap** (a higher-hold game would raise expected earnings): kept as a separate, flagged column because it assumes players don't react to tighter odds",
   "limitation": "30-day window only; a replacement keeps earning after July, so the long-run case can differ",
   "used_in": "Summary, July plan"
  },
@@ -100,7 +100,7 @@
  },
  {
   "id": "C12",
-  "claim": "Downtime cost **~$102k of theo over six months** (5,021 machine-hours): $16–20k a month Jan–May, falling to $11.9k in June when staffing recovered; May was the worst month (1,017 h, $20.0k)",
+  "claim": "Downtime cost **~$102k of expected earnings over six months** (5,021 machine-hours): $16–20k a month Jan–May, falling to $11.9k in June when staffing recovered; May was the worst month (1,017 h, $20.0k)",
   "query": "`sql/claims/C12_downtime_cost.sql`",
   "result": "Valued hour by hour at the zone's coin-in rate for that local hour and weekday/weekend × the machine's hold",
   "alternative": "**Flat-rate valuation** (rejected: it would mis-price night outages)",
@@ -109,7 +109,7 @@
  },
  {
   "id": "C13",
-  "claim": "Among tracked (carded) players, only **16.1%** finished the six months ahead; the top 10% of players account for 64% of tracked theo and 64% of net losses (top 1%: 20% / 20%, only 5.9% ahead). **Locals** are 7% of all card holders (8% of players with play in the six months) but 58.5% of tracked theo, with 27.7 visits each",
+  "claim": "Among tracked (carded) players, only **16.1%** finished the six months ahead; the top 10% of players account for 64% of tracked expected earnings and 64% of net losses (top 1%: 20% / 20%, only 5.9% ahead). **Locals** are 7% of all card holders (8% of players with play in the six months) but 58.5% of tracked expected earnings, with 27.7 visits each",
   "query": "`sql/claims/C13_player_concentration.sql`",
   "result": "96,559 players with carded play; carded play = 65.8% of all coin-in",
   "alternative": "— (descriptive)",
@@ -118,7 +118,7 @@
  },
  {
   "id": "C14",
-  "claim": "**Model validation (frozen forecast: fit Jan–Apr, predict May–Jun; no May–Jun data used).** Earning rate (TPAH): over each machine's two months the model misses by $1.10/hr vs **$1.06 for persistence** (difference +$0.05, 95% range −$0.01 to +$0.10: a tie, not a win) and $1.18 for the zone × game average (model better by $0.08, range −$0.16 to +$0.01). **Day by day the model is 18% better** ($3.63 vs $4.41 and $4.44), but most of that is the weekday pattern: a fairer simple guess, **\"same as before, by weekday\"**, misses by $3.69; the model still beats it, by a small but real margin (−$0.065, 95% range −$0.085 to −$0.044 per machine-day; over two months −$0.068, range −$0.125 to −$0.009), from holidays, events and the spot. Every method over-predicts by $0.9–1.1/hr: the floor got ~5–6% quieter after April, which no Apr-30 forecast could know. Coin-in (CPAH) shows the same pattern (two-month: $11.64 vs $11.08 persistence, which is significantly better; daily: $38.5 vs $46.7)",
+  "claim": "**Model validation (frozen forecast: fit Jan–Apr, predict May–Jun; no May–Jun data used).** Expected earnings per open hour: over each machine's two months the model misses by $1.10/hr vs **$1.06 for persistence** (difference +$0.05, 95% range −$0.01 to +$0.10: a tie, not a win) and $1.18 for the zone × game average (model better by $0.08, range −$0.16 to +$0.01). **Day by day the model is 18% better** ($3.63 vs $4.41 and $4.44), but most of that is the weekday pattern: a fairer simple guess, **\"same as before, by weekday\"**, misses by $3.69; the model still beats it, by a small but real margin (−$0.065, 95% range −$0.085 to −$0.044 per machine-day; over two months −$0.068, range −$0.125 to −$0.009), from holidays, events and the spot. **A stronger challenger** (gradient-boosted trees with zone × weekday, game × weekday and event × zone terms; same split; leakage test passed) misses by $3.57 a machine-day: clearly better than the weekday guess (−$0.120, range −$0.149 to −$0.091) and than the model day by day (−$0.055, range −$0.080 to −$0.032), but not over two months (+$0.018, range −$0.018 to +$0.055), so the simpler model stays (MLflow run `411f59e8a6354de8806dc25c2e03d434`). Every method over-predicts by $0.9–1.1/hr: the floor got ~5–6% quieter after April, which no Apr-30 forecast could know. Coin-in per open hour shows the same pattern (two-month: $11.64 vs $11.08 persistence, which is significantly better; daily: $38.5 vs $46.7)",
   "query": "`sql/claims/C14_model_validation.sql`; `royale/model.py`, `royale/model_run.py`; MLflow experiment `royale-tpah`",
   "result": "Leakage test: scrambling every May–Jun outcome changed no prediction (max change 0.0). Regularization chosen on an inner Jan–Mar → April split only",
   "alternative": "**Overfitting** (inner split, ridge penalty); **leakage** (scramble test passed); **the model is just persistence** (no: it beats persistence day by day, which is what staffing and promotion timing need)",
@@ -127,11 +127,11 @@
  },
  {
   "id": "C15",
-  "claim": "**Once the spot (bank, zone) and the game are known, machines barely differ.** (This is the forecasting model's machine effect, a different and more heavily averaged measure than the Machines page's leave-one-out test, which proves 13 machines get less play, C19; both agree machines differ little.) Shrunk machine effects (July refit on Jan–Jun) range 0.97–1.02; only 11 of 310 are clearly below expected, and the largest shortfall is 3%. The model confirms 2 of the 5 machines an earlier replacement screen flagged (M-1184 0.971, M-1286 0.979, intervals below 1) but at a size that can't pay for a replacement; M-1158 sits at 1.005, so its problem is payout (C03), not demand",
+  "claim": "**Once the spot (bank, zone) and the game are known, machines barely differ.** (This is the forecasting model's machine effect, a different and more heavily averaged measure than the Machines page's test (each machine against the others on the same days), which proves 13 machines get less play, C19; both agree machines differ little.) Shrunk machine effects (July refit on Jan–Jun) range 0.97–1.02; only 11 of 310 are clearly below expected, and the largest shortfall is 3%. The model confirms 2 of the 5 machines an earlier replacement screen flagged (M-1184 0.971, M-1286 0.979, intervals below 1) but at a size that can't pay for a replacement; M-1158 sits at 1.005, so its problem is payout (C03), not demand",
   "query": "`sql/claims/C15_machine_effects.sql`",
   "result": "Between-machine spread 1.7% vs weekly noise 2.6% in Jan–Apr; credibility 0.01–0.61",
   "alternative": "**Shrinkage hides real problems** (checked: raw ratios also cluster, 0.87–1.20, mostly 0.98–1.02)",
-  "limitation": "Effects are measured on theo (demand × configured hold), so a payout fault never shows here; that's what the luck test is for",
+  "limitation": "Effects are measured on expected earnings (demand × configured hold), so a payout fault never shows here; that's what the luck test is for",
   "used_in": "Evidence (supports Machines)"
  },
  {
@@ -146,7 +146,7 @@
  {
   "id": "C17",
   "claim": "**The machine-ranking prediction is right for the floor as a whole, but not month by month.** Over the six months, machines earned (luck removed) $23.55M vs $23.52M predicted from the other machines (1.001×). By month the floor ran above prediction in Jan–Mar (+1.8%, +3.6%, +4.2%), even in April (+0.4%), and below in May–June (−3.2%, −5.6%). So the Machines page compares each machine with the rest of the floor **on the same days**",
-  "query": "`sql/claims/C17_q1_prediction_same_days.sql`; `royale/q1_loo.py` (310 leave-one-out fits; MLflow run `q1-leave-one-out-expectation`)",
+  "query": "`sql/claims/C17_q1_prediction_same_days.sql`; `royale/q1_loo.py` (310 fits, each machine left out of its own; MLflow run `q1-leave-one-out-expectation`)",
   "result": "Same result on DuckDB and Databricks",
   "alternative": "**A machine drags its own benchmark down** (ruled out by design: each prediction is learned without that machine's data)",
   "limitation": "The prediction knows weekday, holidays and announced events but not the season; the same-day adjustment is floor-wide, not per zone",
@@ -163,10 +163,10 @@
  },
  {
   "id": "C19",
-  "claim": "**Machine labels, Jan 1–Jun 30 (310 machines; a machine can have several):** **13 Unpopular units** (M-1252, M-1162, M-1274, M-1173, M-1081, M-1095, M-1228, M-1126, M-1084, M-1532, M-1286, M-1065, M-1094; 6 in Garage Entrance). **1 Paying too much** (M-1158, C03; the payout check runs only on periods of 8+ weeks, because one big jackpot can look like a fault on a short period). **0 Down too often** (the most extreme, M-1241, had 16 breakdowns vs 7.3 normal for its maker, p = 0.004, which is not enough when 310 machines are tested). **78 Quiet spot**: 13 banks, all of Back Forty (8 banks, 62–78% of the floor's time in use) and the High-Limit Room (4 banks, 15–22%), plus Hotel Corridor B-40 (90%). **87 Low sample size** (looks low, not yet proven). **160 Normal**",
+  "claim": "**Machine labels, Jan 1–Jun 30 (310 machines; a machine can have several):** **13 Unpopular units** (M-1252, M-1162, M-1274, M-1173, M-1081, M-1095, M-1228, M-1126, M-1084, M-1532, M-1286, M-1065, M-1094; 6 in Garage Entrance). **1 Paying too much** (M-1158, C03; the payout check runs only on periods of 8+ weeks, because one big jackpot can look like a fault on a short period). **0 Down too often** (the most extreme, M-1241, had 16 breakdowns vs 7.3 normal for its maker, p = 0.004, which is not enough when 310 machines are tested). **78 Quiet spot**: 13 banks, all of Back Forty (8 banks, 62–78% of the floor's time in use) and the High-Limit Room (4 banks, 15–22%), plus Hotel Corridor B-40 (90%). **87 Not proven yet** (look low, but not proven). **160 Normal**",
   "query": "`royale/q1_claims.py C19`",
-  "result": "Holm 5% across all machines (or banks) for every test; play test on a t-distribution",
-  "alternative": "**Chance across many machines** (Holm correction); **a weak game in a weak area** (each unit is compared with the same game in the same zone when ≥3 exist)",
+  "result": "a 5% test corrected for testing many machines at once across all machines (or banks) for every test; play test on a t-distribution",
+  "alternative": "**Chance across many machines** (multiple-testing correction correction); **a weak game in a weak area** (each unit is compared with the same game in the same zone when ≥3 exist)",
   "limitation": "A quiet spot must be proven *and* at most 90% of the floor's time in use, so tiny differences don't count (Bar Row B-21/B-24 and Hotel B-41, 92–98%, are proven but not labelled). Breakdown counts per machine are too small to prove anything",
   "used_in": "Machines answer, chips, card"
  },
@@ -181,20 +181,101 @@
  },
  {
   "id": "C21",
-  "claim": "**Every action on the price list, costed for July 1–30.** Cost = the catalog formula (quantity × (one-off cost + daily cost × days left after lead time)) plus machine downtime valued at expected earnings; gain = expected earnings (luck removed) over only the days left after the lead time. Best-estimate net: promotion weekend ×2 +$18,665 (×1 +$12,809), Back Forty signage +$5,783, inspect M-1158 +$4,570, move 3 Back Forty machines into empty slots +$2,095, restore the old comp points price +$1,640; everything else loses money in July (comp pilot −$2,546, lease replacement −$3,000, survey −$3,500, Ridgeline maintenance −$9,361, bank swap −$10,358, night tech −$10,822, purchase replacement −$21,833)",
+  "claim": "**Every action on the price list, costed for July 1–30, as profit.** Cost = the catalog formula (quantity × (one-off cost + daily cost × days left after lead time)) plus machine downtime; gain = expected earnings over only the days left after the lead time, minus the vendor's 20% on revenue-share machines (22% of floor earnings, 25% in Back Forty) and the comps extra play earns (0.9% of earnings). Best-estimate net: promotion weekend ×2 +$16,073 (×1 +$11,328), inspect M-1158 +$4,570, move 3 Back Forty machines +$1,649, restore the old comp points price +$1,640; everything else loses money in July (comp pilot −$2,546, lease replacement −$3,026, survey −$3,500, Back Forty signs −$3,878, Ridgeline maintenance −$9,475, bank swap −$10,358, night tech −$10,859, purchase replacement −$21,848)",
   "query": "`sql/claims/C21_budget_actions.sql`; `royale/budget.py` (writes `gold.budget_actions`)",
-  "result": "Same table on DuckDB and Databricks; promotion value from the casino's own past promotions only (C10): Locals Week's lift per day × 3 days (best estimate), the Winter Slot Tournament (high)",
-  "alternative": "**City events as the promotion benchmark** (rejected: only the casino's own promotions are used); **inspection always pays** (no: $0 if nothing is found)",
-  "limitation": "Signage (0/5/10% more play) and maintenance (10/30/50% fewer faults) effects are assumptions, not measured; the second promotion weekend is untested (valued at 50–100% of the first); gains are expected earnings, not profit after every cost",
+  "result": "Same table on DuckDB and Databricks. Promotion value from the casino's own past promotions only (C10). Signs: Back Forty's play followed its foot traffic at 0.88× during the walkway closure, and it never regained 10.6% of its traffic after reopening; the signs win back none / half / all of that (+0% / +4.7% / +9.3% play), and only 31% of it is new to the casino: during the closure the rest of the floor picked up 69% of the hours Back Forty lost (C26)",
+  "alternative": "**City events as the promotion benchmark** (rejected: own promotions only); **expected earnings as profit** (rejected: vendor share and comps subtracted); **an assumed signs effect** (replaced by the walkway-closure evidence); **counting all of the signs' play as new** (rejected: most is moved from other zones)",
+  "limitation": "The second promotion weekend is untested (50–100% of the first); maintenance effect (10/30/50% fewer faults) is assumed; the closure measured losing traffic, signs would add it",
   "used_in": "July plan, Summary"
  },
  {
   "id": "C22",
-  "claim": "**The chosen mix is the best of all 353 allowed.** With up to 3 action types, within $100,000, and the comp pilot and comp change never together, **2 promotion weekends + inspect M-1158 + Back Forty signage** ranks #1 on the best estimate: $38,724, net +$29,018 (−$5,599 to +$149,331). It is riskier than smaller mixes: #79 on the worst case. The safest mix, 1 promotion weekend alone, nets +$12,809 (worst case +$7,084)",
+  "claim": "**The chosen mix is the best of the top mixes that can't lose money in July, on profit.** With up to 3 action types, within $100,000, and the comp pilot and comp change never together, **2 promotion weekends + inspect M-1158** ($31,224) ranks #3 of 353: net +$20,643 (+$137 to +$121,973). #1 adds 3 machine moves (+$22,292, worst −$1,791) and #2 the comp change (+$22,283, worst −$1,363); both can lose money. The old mix with Back Forty signs falls to #12 (+$16,765). The safest mix, 1 promotion weekend alone, nets +$11,328 (worst case +$5,908)",
   "query": "`sql/claims/C22_budget_portfolios.sql`; `royale/budget.py` (writes `gold.budget_portfolios`)",
-  "result": "Same ranking on DuckDB and Databricks; #2 and #3 swap the inspection for 3 machine moves (+$26,543) or the comp change (+$26,088)",
-  "alternative": "**Fewer, safer actions** (considered: 1 weekend alone has the best worst case; we take the higher expected value and say so)",
+  "result": "Same ranking on DuckDB and Databricks",
+  "alternative": "**The #1 mix** (rejected: $1,649 more, but the machine moves' gain rests on an assumed share of new play and the mix can lose money); **1 weekend alone** (safest, but about half the expected profit)",
   "limitation": "Ranges add every low (or high) estimate at once, so they are a floor and a ceiling, not a forecast",
   "used_in": "July plan, Summary"
+ },
+ {
+  "id": "C23",
+  "claim": "**The floor got quieter after April because fewer people came in.** Weekday-matched coin-in per day fell 2.7% from Jan–Apr to May–Jun (range −4.4% to −1.0%). Door-counter traffic fell 4.6% (−6.2% to −2.8%) and machines in use 4.0%, while play per busy hour held (−0.5%). Non-card players fell more (−4.4%) than card holders (−1.8%).",
+  "query": "`sql/claims/C23_demand_dip.sql`; `royale/q2_dip.py` (writes `gold.demand_dip_tests`)",
+  "result": "Same on DuckDB and Databricks; weather from NOAA GHCN-Daily, Las Vegas (public domain)",
+  "alternative": "**Fewer events** (11% of the drop), **fewer machines open** (open hours rose 1.9%), **downtime** (lost play fell), **summer heat** (no effect within May–Jun), **the Apr 28 comp change** (card holders held up better, not worse), **Back Forty** (−3.0% without it): all ruled out",
+  "limitation": "Says who stopped coming, not why; visitor-level data that would say why (tourism) isn't usable as an input here",
+  "used_in": "Demand, Summary"
+ },
+ {
+  "id": "C24",
+  "claim": "**The machine ranking holds up out of sample.** Using January–April only (labels, top 10 and the shrinkage setting), 11 machines were proven to get less play than identical machines nearby. In May–June **all 11 were still below their prediction**, at 94% of it on average vs 99.8% for everyone else (−5.9 points, range −8.2 to −3.7). The January–April top 10 stayed below too (−3.0 points, range −6.2 to −0.04), and so did the 49 \"not proven yet\" machines (−2.5 points)",
+  "query": "`sql/claims/C24_ranking_holds_out_of_sample.sql`; `royale/q1_persistence.py` (writes `gold.q1_persistence`)",
+  "result": "Same on DuckDB and Databricks; the January–April shrinkage setting (0.0012) is close to the full-period one (0.0011), so the ranking isn't tuned on the data it ranks",
+  "alternative": "**The flags were noise that would fade** (rejected: flagged machines stayed below, every one of them); **regression to the mean** (partly: they moved from 91% to 94%, which is why the ranking shrinks raw gaps)",
+  "limitation": "One split (Jan–Apr → May–Jun); 11 machines",
+  "used_in": "Machines, Evidence"
+ },
+ {
+  "id": "C25",
+  "claim": "**The forecast is the promotion's yardstick.** Each July promotion day is judged against the model's no-promotion forecast for that day (refit on Jan–Jun, `royale.gold.tpah_glm`). In the frozen test its whole-floor daily forecast missed by 4.0% (one standard deviation, bias removed), so over 6 promotion days it can detect a lift of 3.2% or more. The 2 weekends need about 4.9% to pay for themselves, so July can tell a working promotion from a failed one. The plan states the result rules in advance (works → repeat in the autumn; too close → one more weekend; doesn't → stop)",
+  "query": "`sql/claims/C25_promo_yardstick.sql`; `royale/budget.py` (`forecast_day_sd`, `detectable_lift`)",
+  "result": "Same on DuckDB and Databricks",
+  "alternative": "**Judge promotions against last month or a flat average** (rejected: weekday and event swings of ±20% would swamp a 5% lift); **the model is too inaccurate to help** (no: 3.2% detectable vs 4.9% needed)",
+  "limitation": "Assumes July days miss by about as much as May–June days; a promotion that only moves play between days would look like a smaller lift",
+  "used_in": "July plan, Evidence"
+ },
+ {
+  "id": "C26",
+  "claim": "**Back Forty is an overflow zone: it fills mainly when the rest of the floor is full.** In hours when the rest of the floor is under 20% occupied, Back Forty runs at 0.48× its occupancy; when the rest is 80–90% full, 0.85×. Its coin-in per open hour is 0.73× the rest from 6 to 10 p.m. but only 0.49× from 2 to 9 a.m.",
+  "query": "`royale/findings_scan.py` (`overflow()`, `hour_bands()`: machine_hour × floor_locations, location per hour; walkway closure and High-Limit left out); run `uv run python -m royale.findings_scan`",
+  "result": "July: new signs would bring guests who mostly have free seats elsewhere, so most of their gain is play moved from other zones. During the walkway closure the rest of the floor picked up 69% of the hours Back Forty lost, so only about 31% of the signs' play counts as new, and the signs are dropped from the July plan",
+  "alternative": "**Plain saturation** (any quiet zone drifts toward the rest as seats fill): a saturation-adjusted ratio stays flat for Garage Entrance (0.89 → 0.93) but climbs for Back Forty (0.46 → 0.68), and the rise holds within evening hours only",
+  "limitation": "Hourly and observational; seated players don't cross the counters, so people who walk in and turn back aren't seen",
+  "used_in": "More findings, July plan"
+ },
+ {
+  "id": "C27",
+  "claim": "**No game holds up in Back Forty, so a game swap can't replace signs.** Every game earns about the same share of its rate elsewhere in Back Forty (0.56–0.69× expected earnings per open hour), and the ranking of games is the same in every zone",
+  "query": "`royale/findings_scan.py` (`game_zone()`: expected earnings per open hour by game and zone, same game across zones); run `uv run python -m royale.findings_scan`",
+  "result": "July: the zone effect multiplies every game alike, so swapping games doesn't fix Back Forty; it's the spot, not what's in it",
+  "alternative": "**Bank position inside Back Forty** (the same game order holds bank by bank)",
+  "limitation": "Few machines per game and zone (1–13)",
+  "used_in": "More findings, July plan"
+ },
+ {
+  "id": "C28",
+  "claim": "**Volatile games get shorter sessions at the same bet.** Classic Sevens and Jackpot Summit have the same average bet ($1.20 vs $1.21) and the same $1 minimum, but card holders' sessions last 29.4 vs 18.8 minutes (median 25.5 vs 14.9). Jackpot Summit machines are in use 27% of open hours vs 36%; across games, sessions shorten as payout swings grow",
+  "query": "`royale/findings_scan.py` (`volatility()`, `volatility_occ()`: sessions × game_math); run `uv run python -m royale.findings_scan`",
+  "result": "July: no new spend. Jackpot Summit's seats sit idle more, but it still earns $23.21 expected per open hour (12% hold), so it isn't losing money",
+  "alternative": "**Bet size** (bigger bets drain a bankroll faster): this pair has equal bets",
+  "limitation": "Card holders only; players choose their games",
+  "used_in": "More findings"
+ },
+ {
+  "id": "C29",
+  "claim": "**Food and drink follow time on the floor, not stakes.** The top fifth of visits by coin-in wager about 15× the bottom fifth but spend only about 5× on food and drink ($6.33 vs $1.23 a visit); food-and-drink spend per hour played falls from $5.40 to $3.24 from the bottom to the top fifth",
+  "query": "`royale/findings_scan.py` (`fnb()`: each table aggregated per visit first, then joined); run `uv run python -m royale.findings_scan`",
+  "result": "July: none directly; food-and-drink offers reach long-staying guests, not big bettors",
+  "alternative": "**Heavy players get comps instead of buying** (rejected: face value includes comps)",
+  "limitation": "Card holders' visits only",
+  "used_in": "More findings"
+ },
+ {
+  "id": "C30",
+  "claim": "**The comp change didn't cost visits.** Around Apr 28, card holders' 28-day return rates (Base 24.2% → 25.1% → 24.8%; Gold 91.1% → 90.9% → 91.3%) and coin-in per visit stayed flat",
+  "query": "`royale/findings_scan.py` (`comp_tiers()`: 28-day windows ending Mar 31, Apr 28 and May 26); run `uv run python -m royale.findings_scan`",
+  "result": "July: cheaper comps neither brought guests back nor drove them away, so restoring the old points price is low-risk either way",
+  "alternative": "**Seasonality** (windows before the change show the same small drift)",
+  "limitation": "Platinum is small (about 133 players)",
+  "used_in": "More findings, Comps"
+ },
+ {
+  "id": "C31",
+  "claim": "**The guide's simple forecast works, and it drives the promotion and staffing calls.** Whole-floor coin-in per day, frozen at Apr 30: averaging Jan–Apr by weekday misses May–Jun by $68,699 a day (5.0%), against $218,258 (16.4%) for a constant daily mean: 69% closer (difference −$149,560, range −$180,231 to −$119,099). It runs $39,286 a day high (the post-April slowdown, C23). Refit on Jan–Jun it gives July's no-promotion yardstick (Fri $1.64M, Sat $1.80M, Sun $1.44M). Faults per shift forecast the same way barely beat a flat average (1.22 vs 1.23 a shift), and an extra night tech would save about $1,138 of expected earnings in July against $11,520, so none is funded",
+  "query": "`sql/claims/C31_floor_forecast.sql`; `royale/floor_forecast.py` (writes `gold.floor_forecast_metrics`, `floor_forecast_daily`, `fault_forecast_shift`)",
+  "result": "Same on DuckDB and Databricks; nothing after Apr 30 used for the test",
+  "alternative": "**A constant mean is good enough** (rejected: 69% worse); **staffing should follow forecast faults** (no: faults are close to random by weekday and shift)",
+  "limitation": "One test window; the extra-tech saving assumes waits drop to the day shifts' level",
+  "used_in": "Evidence, July plan, Downtime"
  }
 ]

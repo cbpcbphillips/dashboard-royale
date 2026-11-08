@@ -91,7 +91,7 @@ async function Q1Content({ searchParams }: { searchParams: PageProps<"/machines"
       {notes.map((n) => <div key={n} className="notice" role="status">{n}</div>)}
       {r.shortWindow && (
         <div className="notice warn" role="status">
-          <b>Short window ({r.periodDays} days).</b> With less data, fewer differences can be proven and more machines show “Low sample size”. For a
+          <b>Short window ({r.periodDays} days).</b> With less data, fewer differences can be proven and more machines show “Not proven yet”. For a
           reliable ranking choose at least two months. <Ev id="C20" />
         </div>
       )}
@@ -119,7 +119,7 @@ async function Q1Content({ searchParams }: { searchParams: PageProps<"/machines"
 
         <section className="card area-flag" aria-labelledby="map-title">
           <h2 className="section" id="map-title">Floor map</h2>
-          <p className="cap">Every slot at its real position. Pick a measure and what to compare it with. Default: earnings vs its expected value, so quiet areas don't all turn red; true outliers do. <Ev id="C17" /></p>
+          <p className="cap">Every slot at its real position. Pick a measure and what to compare it with. Default: earnings vs its expected value, so quiet areas don&apos;t all turn red; true outliers do. <Ev id="C17" /></p>
           <FloorMap slots={mapSlots} machines={mapMachines} zones={zoneLabels} selected={selected?.id} scope={{ zone: f.zone, bank: f.bank }} />
         </section>
       </div>

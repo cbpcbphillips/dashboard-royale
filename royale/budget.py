@@ -67,6 +67,47 @@ def facts(con, g: str, b: str) -> dict:
     f["ridgeline_fault_h_day"], f["ridgeline_machines"] = r.h_day, int(r.n)
     # replacement (C09, C18): the largest play shortfall per day of any machine
     f["best_replace_gain_day"] = 5513 / 181  # M-1252, $5,513 short over 181 days (C18)
+
+    # profit, not just expected earnings: revenue-share leases give the vendor 20% of house win (cost_rules
+    # CR-LEASE-SHARE), and extra carded play earns comps at the post-change rate (C07)
+    share = con.execute(f"SELECT rate FROM {b}.cost_rules WHERE cost_rule_id = 'CR-LEASE-SHARE'").fetchone()[0]
+    rs = lambda where: q(f"""SELECT SUM(CASE WHEN lease_class = 'leased_revenue_share' THEN theo_usd END) / SUM(theo_usd)
+                             FROM {g}.machine_day WHERE gaming_date >= DATE '2025-05-01' {where}""")[0]
+    f["vendor_share_rate"] = float(share)
+    f["revshare_frac_floor"], f["revshare_frac_b40"] = rs(""), rs("AND zone_id = 'Z-B40'")
+    f["m1158_revshare"] = q(f"SELECT MAX(CASE WHEN lease_class = 'leased_revenue_share' THEN 1 ELSE 0 END) FROM {g}.machine_day WHERE machine_id = 'M-1158'")[0]
+    f["carded_share"] = q(f"SELECT SUM(carded_coin_in_usd) / SUM(coin_in_usd) FROM {g}.floor_day")[0]
+
+    # signs anchored on the walkway closure (C11): how much Back Forty play follows its foot traffic, and how much
+    # traffic it never got back after reopening
+    w = con.execute(f"SELECT area, period, occupancy, entries_per_covered_hour AS tr FROM {g}.walkway_periods").df()
+    v = lambda area, per, col: float(w[(w.area == area) & (w.period.str.startswith(per))][col].iloc[0])
+    occ_did = (v("Back Forty", "2", "occupancy") / v("Back Forty", "1", "occupancy")) / (v("Rest of floor", "2", "occupancy") / v("Rest of floor", "1", "occupancy"))
+    tr_did = (v("Back Forty", "2", "tr") / v("Back Forty", "1", "tr")) / (v("Rest of floor", "2", "tr") / v("Rest of floor", "1", "tr"))
+    f["traffic_elasticity"] = (1 - occ_did) / (1 - tr_did)
+    f["b40_traffic_headroom"] = v("Back Forty", "1", "tr") / v("Back Forty", "3", "tr") - 1
+    # how much of Back Forty's play is new to the casino (C26, D-090): while the walkway was closed, Back Forty lost
+    # occupied hours and the rest of the floor gained them. Displaced share = rest's gain / Back Forty's loss, measured
+    # against the weeks before the closure (mid) and after reopening (low: the rest gained more than Back Forty lost)
+    zd = con.execute(f"""SELECT CASE WHEN zone_id = 'Z-B40' THEN 'b40' ELSE 'rest' END AS area,
+                               CASE WHEN walkway_closed THEN 2
+                                    WHEN gaming_date < (SELECT MIN(gaming_date) FROM {g}.zone_day WHERE walkway_closed) THEN 1 ELSE 3 END AS per,
+                               SUM(occupied_hours) / SUM(available_hours) AS occ, SUM(available_hours) / COUNT(DISTINCT gaming_date) AS av
+                        FROM {g}.zone_day WHERE zone_id <> 'Z-HL' GROUP BY 1, 2""").df().set_index(["area", "per"])
+    o = lambda area, per: float(zd.loc[(area, per), "occ"])
+    av_b, av_r = float(zd.loc[("b40", 2), "av"]), float(zd.loc[("rest", 2), "av"])
+    disp = lambda base: ((o("rest", 2) - o("rest", base)) * av_r) / ((o("b40", base) - o("b40", 2)) * av_b)
+    f["b40_displaced_before"], f["b40_displaced_after"] = disp(1), disp(3)
+    f["b40_new_play_mid"] = float(min(1.0, max(0.0, 1 - f["b40_displaced_before"])))
+    f["b40_new_play_low"] = float(min(1.0, max(0.0, 1 - f["b40_displaced_after"])))
+
+    # the forecast as the promotion's baseline: day-to-day error of the model's whole-floor forecast in the
+    # frozen test (bias removed, since the July baseline is refit on Jan-Jun), and the smallest lift it can detect
+    d = con.execute(f"""SELECT gaming_date, SUM(actual * available_hours) / SUM(pred_model * available_hours) - 1 AS err
+                        FROM {g}.model_predictions WHERE target = 'tpah' GROUP BY gaming_date""").df()
+    f["forecast_day_sd"] = float(d.err.std(ddof=1))
+    f["promo_days"] = 6
+    f["detectable_lift"] = 1.96 * f["forecast_day_sd"] / np.sqrt(f["promo_days"])
     return {k: (float(v) if isinstance(v, (int, float, np.floating, np.integer)) else v) for k, v in f.items()}
 
 
@@ -84,6 +125,13 @@ def actions(cat: pd.DataFrame, f: dict) -> pd.DataFrame:
                          benefit_days=days_left(a), how=how, evidence=evidence, group=c.loc[a, "incompatibility_group"] if pd.notna(c.loc[a, "incompatibility_group"]) else None))
 
     hold, soft = f["floor_theo_hold"], f["june_vs_half"]
+    comp_cost = f["comp_reinv_after"] * f["carded_share"]
+    floor_pf = 1 - f["vendor_share_rate"] * f["revshare_frac_floor"] - comp_cost   # extra play across the floor
+    b40_pf = 1 - f["vendor_share_rate"] * f["revshare_frac_b40"] - comp_cost        # extra play in Back Forty
+    m1158_pf = 1 - f["vendor_share_rate"] * f["m1158_revshare"]                     # recovered payout (no new play)
+    PF = {"A-PROMO": floor_pf, "A-INSPECT": m1158_pf, "A-WAYFINDING": b40_pf, "A-MOVE-MACHINE": b40_pf, "A-TECH-SHIFT": floor_pf,
+          "A-PREVENTIVE": floor_pf, "A-REPLACE-LEASE": floor_pf, "A-REPLACE-BUY": floor_pf, "A-COMP-CHANGE": 1.0, "A-COMP-PILOT": 1.0,
+          "A-MOVE-BANK": 1.0, "A-SURVEY": 1.0}
     lw, wt = f["promo_locals"], f["promo_tournament"]
     # a 3-day promo weekend: the smaller own promo scaled to 3 days (mid), the tournament (high), and the
     # tournament's low-end lift with summer softness (low)
@@ -99,8 +147,13 @@ def actions(cat: pd.DataFrame, f: dict) -> pd.DataFrame:
         f"If the paytable/meter fault is found and fixed: its leak of ${f['m1158_leak_per_day']:.0f}/day for the days left; low = nothing found",
         "C03", down=2 * f["m1158_tpah"])
     w = f["b40_theo_day"] * days_left("A-WAYFINDING")
-    add("A-WAYFINDING", 1, "Back Forty", 0, 0.05 * w, 0.10 * w,
-        f"Back Forty earns ${f['b40_theo_day']:,.0f}/day expected; signage lifts play 0% / 5% / 10% (no direct evidence on signage; closure showed traffic drives play)", "C11")
+    el, head = f["traffic_elasticity"], f["b40_traffic_headroom"]
+    nn_lo, nn = f["b40_new_play_low"], f["b40_new_play_mid"]
+    add("A-WAYFINDING", 1, "Back Forty", 0, nn * el * head / 2 * w, nn * el * head * w,
+        f"Signs win back none / half / all of the foot traffic Back Forty never regained after the walkway reopened (+{head:.1%}); "
+        f"play follows traffic at {el:.2f}× (the closure: traffic and time in use fell together), so +0% / +{el * head / 2:.1%} / +{el * head:.1%} play on "
+        f"${f['b40_theo_day']:,.0f}/day expected. Only {nn:.0%} of it is new to the casino (low {nn_lo:.0%}): during the closure the rest of the floor "
+        f"picked up {f['b40_displaced_before']:.0%} of the hours Back Forty lost (C26)", "C11, C26")
     gain_mh = f["b40_tpah"] * f["b40_machine_hours_day"] * (((f["pit_tpah"] * 2 + f["htl_tpah"]) / 3) / f["b40_tpah"] - 1)
     mm = 3 * gain_mh * days_left("A-MOVE-MACHINE")
     add("A-MOVE-MACHINE", 3, "3 Back Forty machines -> the 3 empty slots (Center Pit x2, Hotel x1)", 0.25 * mm, 0.5 * mm, mm,
@@ -127,7 +180,11 @@ def actions(cat: pd.DataFrame, f: dict) -> pd.DataFrame:
     rb = f["best_replace_gain_day"] * days_left("A-REPLACE-BUY")
     add("A-REPLACE-BUY", 1, "Most underperforming unit (M-1252)", 0, rb, 2 * rb, "As above, 9 days left after a 21-day lead", "C09, C18", down=6 * f["floor_tpah"])
     a = pd.DataFrame(rows)
+    # gains are expected earnings until here; convert to profit (vendor revenue share and comps on extra play removed)
+    a["profit_factor"] = a.action.map(PF).astype(float)
+    a["gross_mid"] = a["benefit_mid"]
     for s in ("low", "mid", "high"):
+        a[f"benefit_{s}"] = (a[f"benefit_{s}"] * a["profit_factor"]).round(0)
         a[f"net_{s}"] = a[f"benefit_{s}"] - a["cost"]
     a["return_per_dollar_mid"] = (a["benefit_mid"] / a["cost"]).round(2)
     return a
@@ -161,7 +218,7 @@ def main():
     f = facts(con, t["gold"], t["bronze"])
     a = actions(cat, f)
     p = portfolios(a)
-    chosen = "A-INSPECT + A-PROMO x2 + A-WAYFINDING"  # D-083 (was D-012 with 1 weekend); alphabetical, as portfolios list them
+    chosen = "A-INSPECT + A-PROMO x2"  # D-091 (signs dropped after C26, D-090; was D-083 with signs); alphabetical, as portfolios list them
     pd.set_option("display.width", 250)
     print(a[["action", "qty", "cost", "benefit_low", "benefit_mid", "benefit_high", "net_mid", "return_per_dollar_mid"]].sort_values("net_mid", ascending=False).to_string(index=False))
     print(f"\n{len(p)} allowed portfolios. Top 8 by mid net:")

@@ -5,7 +5,7 @@ import { FilterBar } from "@/components/FilterBar";
 import { GroupFilter } from "@/components/GroupFilter";
 import { WeekLine } from "@/components/WeekLine";
 import { parseFilters } from "@/lib/period";
-import { CHANGE_WEEK, Q5_CHANGE, Q5_META, Q5_TIERS, computeQ5 } from "@/lib/q5";
+import { CHANGE_WEEK, Q5_CHANGE, Q5_META, Q5_TIERS, compRiseRange, computeQ5 } from "@/lib/q5";
 
 export const metadata = { title: "Comps & loyalty · The Gilded Ace" };
 
@@ -42,6 +42,8 @@ async function Q5Content({ searchParams }: { searchParams: PageProps<"/comps">["
   const mix = Q5_CHANGE.find((c) => c.opening_tier.includes("re-weighted"))!;
   const tiers = Q5_CHANGE.filter((c) => !c.opening_tier.startsWith("All"));
   const rise = all.reinvestment_after / all.reinvestment_before - 1;
+  const rr = compRiseRange();
+  const dx = (v: number) => ((v - 0.010) / (0.016 - 0.010)) * 100; // 1.0%–1.6% scale
 
   return (
     <>
@@ -50,7 +52,7 @@ async function Q5Content({ searchParams }: { searchParams: PageProps<"/comps">["
       </FilterBar>
       <p className="answer">
         Across January–June: from the week of {fmtDay(CHANGE_WEEK)}, a comp cost about half as many points ({all.weekly_points_per_comp_usd_before.toFixed(1)} → {all.weekly_points_per_comp_usd_after.toFixed(1)} points per dollar of
-        comp). Since then comps cost the casino {Math.round(rise * 100)}% more per dollar of expected earnings ({pct(all.reinvestment_before)} → {pct(all.reinvestment_after)}), mostly
+        comp). Since then comps cost the casino {Math.round(rise * 100)}% more per dollar of expected earnings (range {Math.round(rr.lo * 100)}% to {Math.round(rr.hi * 100)}%, from resampling weeks) ({pct(all.reinvestment_before)} → {pct(all.reinvestment_after)}), mostly
         in the Base tier, while visits barely moved: so far the cheaper comps are a cost without a visible return. The numbers below follow your period and tier. <Ev id="C07" />
       </p>
 
@@ -76,9 +78,9 @@ async function Q5Content({ searchParams }: { searchParams: PageProps<"/comps">["
       <section className="card block" aria-labelledby="tier-title">
         <h2 className="section" id="tier-title">Before vs after, by loyalty tier <Ev id="C07" /></h2>
         <p className="cap">Jan–Mar vs June (April–May left out as the switch-over). If the rise came only from a shift in which tiers play, holding the tier mix fixed would remove it; it doesn&apos;t ({pct(mix.reinvestment_after)} re-weighted).</p>
-        <div className="table-scroll">
+        <div className="table-scroll" tabIndex={0}>
           <table className="q2-table">
-            <thead><tr><th scope="col">Tier</th><th scope="col" className="num">Cost per $ before</th><th scope="col" className="num">After</th><th scope="col" className="num">Comps per player-month</th><th scope="col" className="num">Visits per player-month</th></tr></thead>
+            <thead><tr><th scope="col">Tier</th><th scope="col" className="num">Cost per $ before</th><th scope="col" className="num">After</th><th scope="col" className="num">Comps per player-month</th><th scope="col" className="num">Visits per player-month</th><th scope="col" className="bar-col">Cost per $, before → after</th></tr></thead>
             <tbody>
               {tiers.map((c) => (
                 <tr key={c.opening_tier} className={tier === c.opening_tier ? "sel" : ""}>
@@ -87,6 +89,13 @@ async function Q5Content({ searchParams }: { searchParams: PageProps<"/comps">["
                   <td className="num">{pct(c.reinvestment_after)}</td>
                   <td className="num">{c.comps_per_player_month_before?.toFixed(2)} → {c.comps_per_player_month_after?.toFixed(2)}</td>
                   <td className="num">{c.visits_per_player_month_before?.toFixed(2)} → {c.visits_per_player_month_after?.toFixed(2)}</td>
+                  <td className="bar-col" title={`${pct(c.reinvestment_before)} → ${pct(c.reinvestment_after)}`}>
+                    <span className="dumbbell">
+                      <i className="db-line" style={{ left: `${dx(Math.min(c.reinvestment_before, c.reinvestment_after))}%`, width: `${Math.abs(dx(c.reinvestment_after) - dx(c.reinvestment_before))}%` }} />
+                      <i className="db-before" style={{ left: `${dx(c.reinvestment_before)}%` }} />
+                      <i className="db-after" style={{ left: `${dx(c.reinvestment_after)}%` }} />
+                    </span>
+                  </td>
                 </tr>
               ))}
               <tr><th scope="row">All tiers</th><td className="num">{pct(all.reinvestment_before)}</td><td className="num">{pct(all.reinvestment_after)}</td><td className="num">—</td><td className="num">—</td></tr>

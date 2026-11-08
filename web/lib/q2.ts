@@ -14,11 +14,26 @@ type Q2Data = {
   rows: { z: string[]; d: number[]; coin: number[]; theo: number[]; ah: number[]; oh: number[]; ent: (number | null)[]; cov: (number | null)[]; wc: number[] };
   events: { name: string; event_type: string; local_scope: string; start_date: string; end_date: string; event_days: number; uplift: number; uplift_lo: number; uplift_hi: number; extra_coin_in_usd: number }[];
   walkway: { area: string; period: string; days: number; occupancy: number; cpah: number; entries_per_covered_hour: string | number }[];
+  hourweek: { z: string; wd: string; hr: number; coin: number; ah: number; oh: number }[];
+  dip: { test: string; change: number | null; lo: number | null; hi: number | null; share: number | null; verdict: string; note: string }[];
 };
 
 const data: Q2Data = JSON.parse(readFileSync(path.join(process.cwd(), "data", "q2.json"), "utf8"));
 export const Q2_META = data.meta;
 export const Q2_ZONES = data.zones;
+/** Why the floor got quieter after April (claim C23, royale/q2_dip.py): whole half-year, not affected by filters. */
+export const Q2_DIP = data.dip;
+/** Machines in use by weekday x hour (gaming day), whole half-year, for one zone or the floor. */
+export function hourWeek(zone?: string) {
+  const m = new Map<string, { ah: number; oh: number }>();
+  for (const r of data.hourweek) {
+    if (zone && r.z !== zone) continue;
+    const k = `${r.wd}|${r.hr}`;
+    const x = m.get(k) ?? { ah: 0, oh: 0 };
+    x.ah += r.ah; x.oh += r.oh; m.set(k, x);
+  }
+  return [...m.entries()].map(([k, x]) => { const [wd, hr] = k.split("|"); return { wd, hr: Number(hr), v: x.oh / x.ah }; });
+}
 const R = data.rows;
 const DATES = data.dates;
 const WEEKDAY = DATES.map((d) => new Date(d + "T00:00:00Z").getUTCDay()); // 0 = Sunday

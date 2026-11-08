@@ -29,7 +29,7 @@ def c19(df: pd.DataFrame, tau2: float) -> None:
     low = o.L_new | o.L_unconfirmed
     print({"Unpopular unit": int(o.L_unpopular.sum()), "Paying too much: inspect": int(o.L_paying.sum()),
            "Down too often": int(o.L_down.sum()), "Quiet spot": int(o.L_quiet.sum()),
-           "Low sample size": int(low.sum()),
+           "Not proven yet or few days": int(low.sum()),
            "Normal": int((~(o.L_unpopular | o.L_paying | o.L_down | o.L_quiet | low)).sum())})
     u = o[o.L_unpopular].sort_values("play_z")
     print("\nUnpopular unit (play below prediction, proven after Holm):")

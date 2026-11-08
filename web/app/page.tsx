@@ -92,9 +92,9 @@ export default function Summary() {
     },
     {
       href: "/plan", topic: "July plan", stat: usd(plan.cost), statLabel: `of $100,000; ${usd(Q6.meta.budget - plan.cost)} kept`,
-      headline: `Fund ${funded.map((a) => (a.action === "A-PROMO" ? `${a.qty} promotion weekend${a.qty > 1 ? "s" : ""}` : a.action === "A-INSPECT" ? `an inspection of ${a.target}` : a.action === "A-WAYFINDING" ? `${a.target} signage` : a.name.toLowerCase())).join(", ")}: about ${k(plan.net_mid)} more than it costs in July.`,
-      detail: `Best of ${Q6.n_portfolios} allowed mixes on the best estimate (range ${plan.net_low < 0 ? "−" : ""}${k(Math.abs(plan.net_low))} to ${k(plan.net_high)}). Each action has a measurement plan.`,
-      ev: ["C10", "C03", "C11"],
+      headline: `Fund ${funded.map((a) => (a.action === "A-PROMO" ? `${a.qty} promotion weekend${a.qty > 1 ? "s" : ""}` : a.action === "A-INSPECT" ? `an inspection of ${a.target}` : a.action === "A-WAYFINDING" ? `${a.target} signage` : a.name.toLowerCase())).join(" and ")}: about ${k(plan.net_mid)} more than it costs in July.`,
+      detail: `#${plan.rank_mid} of ${Q6.n_portfolios} allowed mixes, and the only one near the top that can't lose money in July (range ${plan.net_low < 0 ? "−" : ""}${usd(Math.abs(plan.net_low))} to ${k(plan.net_high)}). Back Forty signs were dropped: most of their play would come from other zones. Each action has a measurement plan.`,
+      ev: ["C22", "C10", "C03", "C26"],
     },
   ];
 
@@ -106,6 +106,19 @@ export default function Summary() {
         The machines on the manager&apos;s bottom-10 list mostly sit in a quiet corner of the floor; only one of them (M-1158) shows a possible fault. Here is what drives earnings, and what
         we&apos;d do with $100,000 in July. Every number links to its evidence, and <a href="/checks#model-title">how we tested the model</a> is on the Evidence tab.
       </p>
+      <nav className="start-here" aria-label="Start here">
+        <span className="start-label">Start here</span>
+        <Link href="#mgr-title"><b>1</b> The manager&apos;s list, re-examined</Link>
+        <Link href="/demand#dip-title"><b>2</b> Why the floor got quieter</Link>
+        <Link href="/plan#funded-title"><b>3</b> What we&apos;d fund in July</Link>
+      </nav>
+
+      <div className="notice surprise">
+        <b>Unexpected finding:</b> on April 28 a comp suddenly cost half as many loyalty points. Since then comps cost the casino{" "}
+        {Math.round((comps.reinvestment_after / comps.reinvestment_before - 1) * 100)}% more per dollar of expected earnings, but guests didn&apos;t visit more or less. A cost with
+        no visible return. <Link href="/comps">See Comps</Link> <Ev id="C07" /> <Ev id="C30" /> · Five more findings are on <Link href="/findings">More findings</Link>.
+      </div>
+
       <section className="card block manager-card" aria-labelledby="mgr-title">
         <h2 className="section" id="mgr-title">The manager&apos;s list, re-examined: luck, location, or a leak? <Ev id="C01" /> <Ev id="C19" /></h2>
         <p className="cap">
@@ -113,7 +126,7 @@ export default function Summary() {
           underperformers once spot, time on the floor and luck are accounted for. Location: {causeCount("Location")} · short time on the floor: {causeCount("Exposure")} ·
           leak: {causeCount("Leak")} · weak unit: {causeCount("Weak unit")} · luck alone: {causeCount("Luck")}.
         </p>
-        <div className="table-scroll">
+        <div className="table-scroll" tabIndex={0}>
           <table className="q2-table mgr-table">
             <thead>
               <tr>
@@ -146,7 +159,7 @@ export default function Summary() {
             <div className="summary-topic">{c.topic}</div>
             <div className="summary-stat">{c.stat}<span>{c.statLabel}</span></div>
             <p className="summary-headline">{c.headline}</p>
-            <p className="summary-detail">{c.detail} {c.ev.map((e) => <Ev key={e} id={e} />)}</p>
+            <details className="summary-more"><summary>More</summary><p className="summary-detail">{c.detail} {c.ev.map((e) => <Ev key={e} id={e} />)}</p></details>
             <Link className="summary-link" href={c.href}>See the details →</Link>
           </article>
         ))}

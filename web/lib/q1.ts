@@ -70,6 +70,7 @@ export type MachineResult = {
   theme: string;
   configId: string;
   maker: string;
+  leaseClass: string;
   zoneId: string;
   zoneName: string;
   bankId: string;
@@ -216,6 +217,7 @@ export function computeQ1(from: string, to: string): Q1Result {
       theme: cfg?.theme ?? meta.theme,
       configId: a.cfg,
       maker: a.maker,
+      leaseClass: meta.lease_class,
       zoneId: a.zone,
       zoneName: ZONES.find((z) => z.zone_id === a.zone)?.name ?? a.zone,
       bankId: a.bank,
@@ -288,10 +290,10 @@ export function computeQ1(from: string, to: string): Q1Result {
       if (payoutTested && !paying && m.luckP < ALPHA) unconfirmed.push(["payout", m.luckZ]);
       if (m.availPHolm >= ALPHA && m.availP < ALPHA) unconfirmed.push(["uptime", normInv(m.availP)]);
       if (!payoutTested && m.luckP < ALPHA)
-        L.push({ key: "lowSample", text: "Low sample size", detail: `Kept ${money(m.luck)} less than its game settings imply this period. One big payout can do that; the payout check needs at least 8 weeks of data.` });
+        L.push({ key: "lowSample", text: "Not proven yet", detail: `Kept ${money(m.luck)} less than its game settings imply this period. One big payout can do that; the payout check needs at least 8 weeks of data.` });
       else if (unconfirmed.length) {
         const [what, z] = unconfirmed.sort((x, y) => x[1] - y[1])[0];
-        L.push({ key: "lowSample", text: "Low sample size", detail: `Looks low on ${what}; about ${monthsToSettle(m, z)} more months of similar results would confirm it.` });
+        L.push({ key: "lowSample", text: "Not proven yet", detail: `Looks low on ${what}, but not proven; about ${monthsToSettle(m, z)} more months of similar results would confirm it.` });
       }
     }
     if (!L.length) L.push({ key: "normal", text: "Normal", detail: "Nothing proven: play, payout, uptime and spot are all within normal ranges." });

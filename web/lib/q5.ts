@@ -24,6 +24,20 @@ export const Q5_TIERS = [...new Set(data.tier_month.map((t) => t.opening_tier))]
 export const Q5_CHANGE = data.change;
 export const CHANGE_WEEK = data.change[0]?.change_week_start ?? "2025-04-28";
 
+/** The +x% rise in comp cost per $ of expected earnings (January–March weeks vs June weeks, as in the tier table), with a 95% range
+ *  from 2,000 resamples of weeks (fixed seed, so the page is stable). */
+export function compRiseRange() {
+  const full = data.weeks.filter((w) => w.days === 7);
+  // same months as the before/after table: January–March vs June
+  const before = full.filter((w) => w.week_start < "2025-04-01"), after = full.filter((w) => w.week_start >= "2025-06-01");
+  const ratio = (xs: Week[]) => xs.reduce((a, w) => a + w.comp_cost_usd, 0) / xs.reduce((a, w) => a + w.carded_theo_usd, 0);
+  let seed = 7;
+  const rand = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const pick = (xs: Week[]) => xs.map(() => xs[Math.floor(rand() * xs.length)]);
+  const draws = Array.from({ length: 2000 }, () => ratio(pick(after)) / ratio(pick(before)) - 1).sort((a, b) => a - b);
+  return { rise: ratio(after) / ratio(before) - 1, lo: draws[50], hi: draws[1949] };
+}
+
 export function computeQ5(from: string, to: string, tier?: string) {
   const months = monthRange(from, to);
   const tm = data.tier_month.filter((t) => t.month >= months.from && t.month <= months.to && (!tier || t.opening_tier === tier));

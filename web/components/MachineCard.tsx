@@ -1,13 +1,46 @@
 import type { MachineResult } from "@/lib/q1";
+import { Q6 } from "@/lib/q6";
 import { Ev } from "./Ev";
 import { LabelChip } from "./LabelChip";
 
 const money = (x: number) => `${x < 0 ? "−" : ""}$${Math.abs(Math.round(x)).toLocaleString("en-US")}`;
 const pct = (x: number, d = 0) => `${(x * 100).toFixed(d)}%`;
+/** Profit view of the shortfall: lost play loses the vendor share (revenue-share machines) and the comps it would have earned;
+ *  a payout loss is house money, so only the vendor share applies (same rates as the July plan, claim C21). */
+function profitShort(m: MachineResult) {
+  const F = Q6.facts, vendor = m.leaseClass === "leased_revenue_share" ? F.vendor_share_rate : 0;
+  const payout = m.luckPHolm < 0.05 ? Math.max(-m.luck, 0) : 0;
+  return m.playShort * (1 - vendor - F.comp_reinv_after * F.carded_share) + payout * (1 - vendor);
+}
 /** A gap vs prediction in words: positive = below, negative = above. */
 const gap = (x: number, d = 1) => (x >= 0 ? `${pct(x, d)} below` : `${pct(-x, d)} above`);
 
 /** Everything about one machine (D-074/D-075): labels with reasons, the four measures with ranks, and the math on request. */
+/** Horizontal waterfall: start, signed steps, end. Each step is a bar from the running total. */
+function Waterfall({ steps }: { steps: { label: string; v: number; total?: boolean }[] }) {
+  const bars: (typeof steps[number] & { from: number; to: number })[] = [];
+  for (let i = 0, run = 0; i < steps.length; i++) {
+    const s = steps[i];
+    const from = s.total ? 0 : run;
+    const to = s.total ? s.v : run + s.v;
+    if (!s.total || i === 0) run = to;
+    bars.push({ ...s, from: Math.min(from, to), to: Math.max(from, to) });
+  }
+  const lo = Math.min(0, ...bars.map((b) => b.from)), hi = Math.max(...bars.map((b) => b.to));
+  const x = (v: number) => ((v - lo) / (hi - lo || 1)) * 100;
+  return (
+    <div className="wf" role="img" aria-label={steps.map((s) => `${s.label}: ${money(s.v)}`).join("; ")}>
+      {bars.map((b) => (
+        <div key={b.label} className="wf-row">
+          <span className="wf-label">{b.label}</span>
+          <span className="wf-track"><i className={`wf-bar ${b.total ? "wf-total" : b.v >= 0 ? "wf-up" : "wf-down"}`} style={{ left: `${x(b.from)}%`, width: `${Math.max(0.6, x(b.to) - x(b.from))}%` }} /></span>
+          <span className="wf-val">{b.total ? money(b.v) : `${b.v >= 0 ? "+" : "−"}${money(Math.abs(b.v))}`}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function MachineCard({ m, of, floor }: { m: MachineResult; of: number; floor: { tpah: number; occupancy: number; uptime: number } }) {
   const below = m.shrunkGap;
   const measures = [
@@ -31,6 +64,9 @@ export function MachineCard({ m, of, floor }: { m: MachineResult; of: number; fl
           <div className="label">Short of prediction <Ev id="C18" /></div>
           <div className="big">{money(m.score)}</div>
           {m.luckPHolm < 0.05 && <div className="foot">{money(Math.max(-m.luck, 0))} payout loss {m.playShort >= 0 ? "+" : "−"} {money(Math.abs(m.playShort))} {m.playShort >= 0 ? "lost play" : "extra play"}</div>}
+          <div className="foot" title="Lost play costs less than its expected earnings: the vendor takes 20% on revenue-share machines and the play would have earned comps">
+            as profit: {money(profitShort(m))}{m.leaseClass === "leased_revenue_share" ? " (revenue-share machine)" : ""}
+          </div>
         </div>
         <div>
           <div className="label">Play vs prediction</div>
@@ -40,6 +76,15 @@ export function MachineCard({ m, of, floor }: { m: MachineResult; of: number; fl
           <div className="foot">before adjusting: {gap(m.rawGap)}</div>
         </div>
       </div>
+
+      <div className="subhead">Why it earned what it did</div>
+      <Waterfall steps={[
+        { label: "A typical machine, same open hours", v: floor.tpah * m.openHours, total: true },
+        { label: "Its spot and game (the prediction)", v: m.expected - floor.tpah * m.openHours },
+        { label: "The machine itself (more or less play)", v: m.theo - m.expected },
+        { label: "Luck (or a payout fault)", v: m.houseWin - m.theo },
+        { label: "What it actually kept", v: m.houseWin, total: true },
+      ]} />
 
       <div className="subhead">The basics ({m.days} days on the floor in this period)</div>
       <table className="basics">
@@ -122,7 +167,7 @@ export function MachineCard({ m, of, floor }: { m: MachineResult; of: number; fl
             {money(m.theo)} (luck removed): {pct(m.ratio, 1)} of the prediction.
           </li>
           <li>
-            <b>Is the gap real?</b> Week to week, play swings. Testing the gap against that swing gives z = {Number.isFinite(m.playZ) ? m.playZ.toFixed(2) : "n/a"}. With
+            <b>Is the gap real?</b> (This test holds up out of sample: machines flagged on January–April were all still below prediction in May–June <Ev id="C24" />.) Week to week, play swings. Testing the gap against that swing gives z = {Number.isFinite(m.playZ) ? m.playZ.toFixed(2) : "n/a"}. With
             only a few weeks the swing itself is uncertain, so the test asks for stronger evidence (a t-test). After correcting for testing every machine at once, it
             is {m.playPHolm < 0.05 ? "proven" : "not proven"}.
           </li>
